@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysKey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
 import cn.shuto.maximo.tool.util.DBUtil;
 import cn.shuto.maximo.tool.util.SerializeUtil;
@@ -33,12 +34,14 @@ public class DBConfigMigration {
 	private static final String SELECTMAXTABLECFG = "select TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE from maxtablecfg where  tablename = ?";
 	private static final String SELECTMAXATTRIBUTECFG = "select OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION from maxattributecfg where objectname = ?";
 	private static final String SELECTMAXSYSINDEXES = "select  NAME, TBNAME, UNIQUERULE, CHANGED, CLUSTERRULE, STORAGEPARTITION, REQUIRED, TEXTSEARCH, MAXSYSINDEXESID from maxsysindexes where tbname = ?";
+	private static final String SELECTMAXSYSKEYS = "select IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID from maxsyskeys  where IXNAME = ?";
 
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
 	PreparedStatement maxtablecfgST = null;
 	PreparedStatement maxattributecfgST = null;
 	PreparedStatement maxsysindexesST = null;
+	PreparedStatement maxsyskeysST = null;
 
 	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
@@ -50,6 +53,7 @@ public class DBConfigMigration {
 				maxtablecfgST = conn.prepareStatement(SELECTMAXTABLECFG);
 				maxattributecfgST = conn.prepareStatement(SELECTMAXATTRIBUTECFG);
 				maxsysindexesST = conn.prepareStatement(SELECTMAXSYSINDEXES);
+				maxsyskeysST = conn.prepareStatement(SELECTMAXSYSKEYS);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -130,10 +134,35 @@ public class DBConfigMigration {
 		while (rs.next()) {
 			String name = NULLTOEMPTY(rs.getString(1));
 			_log.info("--导出索引名字为：" + name + " 的数据----------------");
-			maxSysIndexes.add(new MaxSysIndexes(name, NULLTOEMPTY(rs.getString(2)), NULLTOEMPTY(rs.getString(3)),
-					rs.getInt(5), NULLTOEMPTY(rs.getString(6)), rs.getInt(7), rs.getInt(8)));
+			MaxSysIndexes maxSysIndex = new MaxSysIndexes(name, NULLTOEMPTY(rs.getString(2)),
+					NULLTOEMPTY(rs.getString(3)), rs.getInt(5), NULLTOEMPTY(rs.getString(6)), rs.getInt(7),
+					rs.getInt(8));
+
+			_log.info("--导出索引名字为：" + name + " maxsyskeys 表的数据----------------");
+			maxSysIndex.setMaxSysKeys(exportMaxsyskeysToJavaBean(name));
+			// 将索引对象添加的 集合中
+			maxSysIndexes.add(maxSysIndex);
 		}
 		return maxSysIndexes;
+	}
+
+	/**
+	 * 导出 索引表 对应的 maxsyskeys 表中的数据
+	 * 
+	 * @param indexName
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<MaxSysKey> exportMaxsyskeysToJavaBean(String indexName) throws SQLException {
+		List<MaxSysKey> list = new ArrayList<MaxSysKey>();
+		maxsyskeysST.setString(1, indexName);
+		ResultSet rs = maxsyskeysST.executeQuery();
+		while (rs.next()) {
+			list.add(new MaxSysKey(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)), rs.getInt(3),
+					NULLTOEMPTY(rs.getString(4))));
+		}
+		rs.close();
+		return list;
 	}
 
 	/**
@@ -247,6 +276,8 @@ public class DBConfigMigration {
 				maxattributecfgST.close();
 			if (maxsysindexesST != null)
 				maxsysindexesST.close();
+			if (maxsyskeysST != null)
+				maxsyskeysST.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

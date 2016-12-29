@@ -1,6 +1,7 @@
 package cn.shuto.maximo.tool.migration.dbconfig.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class MaxSysIndexes implements Serializable {
 
@@ -16,8 +17,20 @@ public class MaxSysIndexes implements Serializable {
 	private int textsearch;
 	private String maxsysindexesid = "MAXSYSINDEXESSEQ.nextval";
 
+	//关联对象
+	List<MaxSysKey> maxSysKeys ;
 	
 	
+	
+	
+	public List<MaxSysKey> getMaxSysKeys() {
+		return maxSysKeys;
+	}
+
+	public void setMaxSysKeys(List<MaxSysKey> maxSysKeys) {
+		this.maxSysKeys = maxSysKeys;
+	}
+
 	public MaxSysIndexes(String name, String tbname, String uniquerule, int clusterrule,
 			String storagepartition, int required, int textsearch) {
 		super();

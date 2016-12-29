@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.util.DBUtil;
 import cn.shuto.maximo.tool.util.SerializeUtil;
@@ -19,7 +20,10 @@ public class App {
 
 	public static void main(String[] args) {
 //		List<MaxObjectCfg> list = SerializeUtil.readObjectForList(new File("F:\\Workspace\\Eclipse\\workspace-maximo\\maximo-tool\\package\\dbconfig\\BDConfig.mtep"));
-//		System.out.println(list.get(0).getMaxTableCfg().toInsertSql());
+//		List<MaxAttributeCfg> maxAttributeCfgs = list.get(0).getMaxAttributeCfgs();
+//		for (MaxAttributeCfg maxAttributeCfg : maxAttributeCfgs) {
+//			System.out.println(maxAttributeCfg.toInsertSql());
+//		}
 //		
 		//注册系统退出事件，退出系统时关闭数据库连接
 		Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -32,10 +36,5 @@ public class App {
 
 		DBConfigMigration dbcm = new DBConfigMigration(args[0], args[1]);
 		dbcm.exportDBConfig(args[2]);
-//		try {
-//			Thread.sleep(3000);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
 	}
 }

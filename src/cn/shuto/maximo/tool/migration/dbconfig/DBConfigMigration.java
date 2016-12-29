@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
 import cn.shuto.maximo.tool.util.DBUtil;
@@ -29,9 +30,12 @@ public class DBConfigMigration {
 
 	private static final String SELECTMAXOBJECTCFG = "select OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION from maxobjectcfg where objectname = ?";
 	private static final String SELECTMAXTABLECFG = "select TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE from maxtablecfg where  tablename = ?";
+	private static final String SELECTMAXATTRIBUTECFG = "select OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION from maxattributecfg where objectname = ?";
+
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
 	PreparedStatement maxtablecfgST = null;
+	PreparedStatement maxattributecfgST = null;
 
 	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
@@ -41,6 +45,7 @@ public class DBConfigMigration {
 			try {
 				maxobjectcfgST = conn.prepareStatement(SELECTMAXOBJECTCFG);
 				maxtablecfgST = conn.prepareStatement(SELECTMAXTABLECFG);
+				maxattributecfgST = conn.prepareStatement(SELECTMAXATTRIBUTECFG);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -90,14 +95,45 @@ public class DBConfigMigration {
 
 		} else {// 不是视图
 				// 导出Maxtablecfg表
-			_log.info("导出对象："+ objectName+" 对应的Maxtablecfg表中的数据-");
+			_log.info("导出对象：" + objectName + " 对应的Maxtablecfg表中的数据-");
 			MaxTableCfg maxTableCfg = exportMaxtablecfgToJavaBean(maxobjectcfg.getEntityname());
 			maxobjectcfg.setMaxTableCfg(maxTableCfg);
 		}
 
-		System.out.println(maxobjectcfg.getMaxTableCfg().toInsertSql());
+		// 导出 MaxAttributeCfg
+		_log.info("导出对象：" + objectName + " 对应的Maxattributecfg表中的数据-");
+		maxobjectcfg.setMaxAttributeCfgs(exportMaxattributecfgToJavaBean(objectName));
+
+		// System.out.println(maxobjectcfg.getMaxTableCfg().toInsertSql());
 
 		return maxobjectcfg;
+	}
+
+	/**
+	 * 导出 MaxAttributeCfg 中的数据
+	 * 
+	 * @param objectName
+	 * @return
+	 */
+	public List<MaxAttributeCfg> exportMaxattributecfgToJavaBean(String objectName) throws SQLException {
+		maxattributecfgST.setString(1, objectName);
+		ResultSet rs = maxattributecfgST.executeQuery();
+		List<MaxAttributeCfg> list = new ArrayList<MaxAttributeCfg>();
+		while (rs.next()) {
+			String attributename = NULLTOEMPTY(rs.getString(2));
+			_log.info("--导出属性：" + attributename + "----------------");
+			list.add(new MaxAttributeCfg(NULLTOEMPTY(rs.getString(1)), attributename, NULLTOEMPTY(rs.getString(3)),
+					NULLTOEMPTY(rs.getString(4)), rs.getInt(5), rs.getInt(6), NULLTOEMPTY(rs.getString(7)),
+					NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)), NULLTOEMPTY(rs.getString(10)),
+					rs.getInt(11), NULLTOEMPTY(rs.getString(12)), rs.getInt(13), rs.getInt(14), rs.getInt(15),
+					rs.getInt(16), NULLTOEMPTY(rs.getString(17)), rs.getInt(18), rs.getInt(19), rs.getInt(20),
+					rs.getInt(21), NULLTOEMPTY(rs.getString(22)), NULLTOEMPTY(rs.getString(23)),
+					NULLTOEMPTY(rs.getString(24)), rs.getInt(25), NULLTOEMPTY(rs.getString(26)), rs.getInt(27),
+					NULLTOEMPTY(rs.getString(29)), rs.getInt(30), rs.getInt(31), NULLTOEMPTY(rs.getString(32)),
+					rs.getInt(34), rs.getInt(35), NULLTOEMPTY(rs.getString(36)), NULLTOEMPTY(rs.getString(37))));
+		}
+		rs.close();
+		return list;
 	}
 
 	/**
@@ -111,9 +147,11 @@ public class DBConfigMigration {
 		maxtablecfgST.setString(1, entityName);
 		ResultSet rs = maxtablecfgST.executeQuery();
 		if (rs.next()) {
-			return new MaxTableCfg(rs.getString(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5),
-					rs.getString(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10), rs.getInt(11),
-					rs.getString(13), rs.getString(14), rs.getString(15));
+			return new MaxTableCfg(NULLTOEMPTY(rs.getString(1)), rs.getInt(2), NULLTOEMPTY(rs.getString(3)),
+					rs.getInt(4), rs.getInt(5), NULLTOEMPTY(rs.getString(6)), rs.getInt(7),
+					NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)), NULLTOEMPTY(rs.getString(10)),
+					rs.getInt(11), NULLTOEMPTY(rs.getString(13)), NULLTOEMPTY(rs.getString(14)),
+					NULLTOEMPTY(rs.getString(15)));
 		}
 		rs.close();
 		return null;
@@ -131,10 +169,12 @@ public class DBConfigMigration {
 		maxobjectcfgST.setString(1, objectName);
 		ResultSet rs = maxobjectcfgST.executeQuery();
 		if (rs.next()) {
-			return new MaxObjectCfg(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5),
-					rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11),
-					rs.getString(12), rs.getString(13), rs.getInt(14), rs.getString(16), rs.getString(17),
-					rs.getString(19));
+			return new MaxObjectCfg(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)),
+					NULLTOEMPTY(rs.getString(3)), rs.getInt(4), NULLTOEMPTY(rs.getString(5)),
+					NULLTOEMPTY(rs.getString(6)), NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)),
+					rs.getInt(9), rs.getInt(10), rs.getInt(11), NULLTOEMPTY(rs.getString(12)),
+					NULLTOEMPTY(rs.getString(13)), rs.getInt(14), NULLTOEMPTY(rs.getString(16)),
+					NULLTOEMPTY(rs.getString(17)), NULLTOEMPTY(rs.getString(19)));
 		}
 		rs.close();
 		return null;
@@ -145,13 +185,25 @@ public class DBConfigMigration {
 		maxobjectcfgST.setString(1, objectName);
 		ResultSet rs = maxobjectcfgST.executeQuery();
 		if (rs.next()) {
-			return String.format(INSERTMAXOBJECTCFG, rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4),
-					rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10),
-					rs.getInt(11), rs.getString(12), rs.getString(13), rs.getInt(14), rs.getString(16),
-					rs.getString(17), rs.getString(19));
+			return String.format(INSERTMAXOBJECTCFG, NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)),
+					NULLTOEMPTY(rs.getString(3)), rs.getInt(4), NULLTOEMPTY(rs.getString(5)),
+					NULLTOEMPTY(rs.getString(6)), NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)),
+					rs.getInt(9), rs.getInt(10), rs.getInt(11), NULLTOEMPTY(rs.getString(12)),
+					NULLTOEMPTY(rs.getString(13)), rs.getInt(14), NULLTOEMPTY(rs.getString(16)),
+					NULLTOEMPTY(rs.getString(17)), NULLTOEMPTY(rs.getString(19)));
 		}
 		rs.close();
 		return null;
+	}
+
+	/**
+	 * 判断字段是否为空 如果空 返回 "" 不能返回 "null"
+	 * 
+	 * @param v
+	 * @return
+	 */
+	private String NULLTOEMPTY(String v) {
+		return v == null ? "" : v;
 	}
 
 	/**
@@ -164,6 +216,9 @@ public class DBConfigMigration {
 				maxobjectcfgST.close();
 			if (maxtablecfgST != null)
 				maxtablecfgST.close();
+			if (maxattributecfgST != null) {
+				maxattributecfgST.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

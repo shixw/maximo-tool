@@ -1,6 +1,7 @@
 package cn.shuto.maximo.tool.migration.dbconfig.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class MaxObjectCfg implements Serializable {
 
@@ -28,9 +29,18 @@ public class MaxObjectCfg implements Serializable {
 	
 	//关联对象
 	private MaxTableCfg maxTableCfg;
+	private List<MaxAttributeCfg> maxAttributeCfgs;
+	
+	
+	
+	public List<MaxAttributeCfg> getMaxAttributeCfgs() {
+		return maxAttributeCfgs;
+	}
 
-	
-	
+	public void setMaxAttributeCfgs(List<MaxAttributeCfg> maxAttributeCfgs) {
+		this.maxAttributeCfgs = maxAttributeCfgs;
+	}
+
 	public MaxTableCfg getMaxTableCfg() {
 		return maxTableCfg;
 	}

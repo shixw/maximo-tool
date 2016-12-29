@@ -25,6 +25,19 @@ public class MaxObjectCfg implements Serializable {
 	private String internal;
 	private String maxobjectid = "MAXOBJECTCFGSEQ.nextval";
 	private String textdirection;
+	
+	//关联对象
+	private MaxTableCfg maxTableCfg;
+
+	
+	
+	public MaxTableCfg getMaxTableCfg() {
+		return maxTableCfg;
+	}
+
+	public void setMaxTableCfg(MaxTableCfg maxTableCfg) {
+		this.maxTableCfg = maxTableCfg;
+	}
 
 	public MaxObjectCfg(String objectname, String classname, String description, int eauditenabled, String eauditfilter,
 			String entityname, String esigfilter, String extendsobject, int imported, int isview, int persistent,

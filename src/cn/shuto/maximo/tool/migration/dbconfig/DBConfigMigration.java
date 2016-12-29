@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
 import cn.shuto.maximo.tool.util.DBUtil;
 import cn.shuto.maximo.tool.util.SerializeUtil;
 
@@ -27,16 +28,19 @@ public class DBConfigMigration {
 	private Connection conn = null;
 
 	private static final String SELECTMAXOBJECTCFG = "select OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION from maxobjectcfg where objectname = ?";
+	private static final String SELECTMAXTABLECFG = "select TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE from maxtablecfg where  tablename = ?";
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
+	PreparedStatement maxtablecfgST = null;
 
-	public DBConfigMigration(String maximoPath,String packagePath) {
+	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
 		this.PACKAGEPATH = packagePath;
 		conn = DBUtil.getInstance().getMaximoConnection(MAXIMOPATH);
 		if (conn != null) {
 			try {
 				maxobjectcfgST = conn.prepareStatement(SELECTMAXOBJECTCFG);
+				maxtablecfgST = conn.prepareStatement(SELECTMAXTABLECFG);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -56,15 +60,18 @@ public class DBConfigMigration {
 		// 存储所有导出对象的集合
 		List<MaxObjectCfg> list = new ArrayList<MaxObjectCfg>();
 		// 遍历所有需要迁移的对象
-		for (String object : objects) {
-			try {
+
+		try {
+			for (String object : objects) {
 				list.add(exportObject(object));
-			} catch (SQLException e) {
-				e.printStackTrace();
 			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			closeResource();
 		}
 		// 将导出的集合进行Java序列化
-		SerializeUtil.writeObject(list, new File(PACKAGEPATH+"\\package\\dbconfig\\BDConfig.mtep"));
+		SerializeUtil.writeObject(list, new File(PACKAGEPATH + "\\package\\dbconfig\\BDConfig.mtep"));
 	}
 
 	/**
@@ -78,9 +85,38 @@ public class DBConfigMigration {
 		_log.info("导出对象：" + objectName);
 		// 导出maxobjectcfg表
 		MaxObjectCfg maxobjectcfg = exportMaxobjectcfgToJavaBean(objectName);
-		System.out.println(maxobjectcfg.toInsertSql());
+		// 判断是否为视图
+		if (maxobjectcfg.getIsview() == 1) {// 是视图
+
+		} else {// 不是视图
+				// 导出Maxtablecfg表
+			_log.info("导出对象："+ objectName+" 对应的Maxtablecfg表中的数据-");
+			MaxTableCfg maxTableCfg = exportMaxtablecfgToJavaBean(maxobjectcfg.getEntityname());
+			maxobjectcfg.setMaxTableCfg(maxTableCfg);
+		}
+
+		System.out.println(maxobjectcfg.getMaxTableCfg().toInsertSql());
 
 		return maxobjectcfg;
+	}
+
+	/**
+	 * 导出Maxtablecfg表中的数据
+	 * 
+	 * @param objectName
+	 * @return
+	 * @throws SQLException
+	 */
+	public MaxTableCfg exportMaxtablecfgToJavaBean(String entityName) throws SQLException {
+		maxtablecfgST.setString(1, entityName);
+		ResultSet rs = maxtablecfgST.executeQuery();
+		if (rs.next()) {
+			return new MaxTableCfg(rs.getString(1), rs.getInt(2), rs.getString(3), rs.getInt(4), rs.getInt(5),
+					rs.getString(6), rs.getInt(7), rs.getString(8), rs.getString(9), rs.getString(10), rs.getInt(11),
+					rs.getString(13), rs.getString(14), rs.getString(15));
+		}
+		rs.close();
+		return null;
 	}
 
 	/**
@@ -100,6 +136,7 @@ public class DBConfigMigration {
 					rs.getString(12), rs.getString(13), rs.getInt(14), rs.getString(16), rs.getString(17),
 					rs.getString(19));
 		}
+		rs.close();
 		return null;
 	}
 
@@ -113,7 +150,23 @@ public class DBConfigMigration {
 					rs.getInt(11), rs.getString(12), rs.getString(13), rs.getInt(14), rs.getString(16),
 					rs.getString(17), rs.getString(19));
 		}
+		rs.close();
 		return null;
+	}
+
+	/**
+	 * 关闭打开的资源
+	 */
+	private void closeResource() {
+		_log.info("----------关闭打开的资源-----------------------");
+		try {
+			if (maxobjectcfgST != null)
+				maxobjectcfgST.close();
+			if (maxtablecfgST != null)
+				maxtablecfgST.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

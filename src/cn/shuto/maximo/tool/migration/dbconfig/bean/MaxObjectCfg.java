@@ -32,8 +32,19 @@ public class MaxObjectCfg implements Serializable {
 	private List<MaxAttributeCfg> maxAttributeCfgs;
 	private List<MaxSysIndexes> maxSysIndexes;
 	private List<MaxRelationship> maxRelationships;
+	private List<MaxSequence> maxSequences;
 	
 	
+	
+	
+	public List<MaxSequence> getMaxSequences() {
+		return maxSequences;
+	}
+
+	public void setMaxSequences(List<MaxSequence> maxSequences) {
+		this.maxSequences = maxSequences;
+	}
+
 	public List<MaxRelationship> getMaxRelationships() {
 		return maxRelationships;
 	}

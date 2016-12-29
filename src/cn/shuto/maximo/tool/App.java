@@ -9,6 +9,7 @@ import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxRelationship;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSequence;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysKey;
 import cn.shuto.maximo.tool.util.DBUtil;
@@ -41,6 +42,11 @@ public class App {
 //		List<MaxRelationship> maxRelationships = list.get(0).getMaxRelationships();
 //		for (MaxRelationship maxRelationship : maxRelationships) {
 //			System.out.println(maxRelationship.toInsertSql());
+//		}
+//		
+//		List<MaxSequence> maxSequences = list.get(0).getMaxSequences();
+//		for (MaxSequence maxSequence : maxSequences) {
+//			System.out.println(maxSequence.toInsertSql());
 //		}
 		
 		

@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxRelationship;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSequence;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysKey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
@@ -37,6 +38,7 @@ public class DBConfigMigration {
 	private static final String SELECTMAXSYSINDEXES = "select  NAME, TBNAME, UNIQUERULE, CHANGED, CLUSTERRULE, STORAGEPARTITION, REQUIRED, TEXTSEARCH, MAXSYSINDEXESID from maxsysindexes where tbname = ?";
 	private static final String SELECTMAXSYSKEYS = "select IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID from maxsyskeys  where IXNAME = ?";
 	private static final String SELECTMAXRELATIONSHIP = "select NAME, PARENT, CHILD, WHERECLAUSE, REMARKS, MAXRELATIONSHIPID, CARDINALITY, DBJOINREQUIRED from maxrelationship where parent = ?";
+	private static final String SELECTMAXSEQUENCE = "select TBNAME, NAME, MAXRESERVED, MAXVALUE, RANGE, SEQUENCENAME, MAXSEQUENCEID from maxsequence where tbname = ?";
 
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
@@ -45,6 +47,7 @@ public class DBConfigMigration {
 	PreparedStatement maxsysindexesST = null;
 	PreparedStatement maxsyskeysST = null;
 	PreparedStatement maxrelationshipST = null;
+	PreparedStatement maxsequenceST = null;
 
 	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
@@ -58,6 +61,7 @@ public class DBConfigMigration {
 				maxsysindexesST = conn.prepareStatement(SELECTMAXSYSINDEXES);
 				maxsyskeysST = conn.prepareStatement(SELECTMAXSYSKEYS);
 				maxrelationshipST = conn.prepareStatement(SELECTMAXRELATIONSHIP);
+				maxsequenceST = conn.prepareStatement(SELECTMAXSEQUENCE);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -124,7 +128,28 @@ public class DBConfigMigration {
 		_log.info("导出对象：" + objectName + " 对应的MaxRelationship表中的数据-");
 		maxobjectcfg.setMaxRelationships(exportMaxrelationshipToJavaBean(objectName));
 
+		// 导出 maxsequence
+		_log.info("导出对象：" + objectName + " 对应的maxsequence表中的数据-");
+		maxobjectcfg.setMaxSequences(exportMaxsequenceToJavaBean(maxobjectcfg.getEntityname()));
 		return maxobjectcfg;
+	}
+
+	/**
+	 * 导出 Maxsequence 表数据
+	 * @param entityName
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<MaxSequence> exportMaxsequenceToJavaBean(String entityName) throws SQLException {
+		List<MaxSequence> list = new ArrayList<MaxSequence>();
+		maxsequenceST.setString(1, entityName);
+		ResultSet rs = maxsequenceST.executeQuery();
+		while (rs.next()) {
+			list.add(new MaxSequence(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)), rs.getInt(3),
+					rs.getInt(4), rs.getInt(5), NULLTOEMPTY(rs.getString(6))));
+		}
+		rs.close();
+		return list;
 	}
 
 	/**
@@ -307,6 +332,8 @@ public class DBConfigMigration {
 				maxsyskeysST.close();
 			if (maxrelationshipST != null)
 				maxrelationshipST.close();
+			if (maxsequenceST != null)
+				maxsequenceST.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

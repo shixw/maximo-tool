@@ -1,6 +1,7 @@
 package cn.shuto.maximo.tool.migration.dbconfig.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class MaxAttributeCfg implements Serializable {
 
@@ -43,6 +44,19 @@ public class MaxAttributeCfg implements Serializable {
 	private int localizable;
 	private String textdirection;
 	private String complexexpression;
+	
+	//关联的对象
+	private List<Autokey> autokeys;
+	
+	
+
+	public List<Autokey> getAutokeys() {
+		return autokeys;
+	}
+
+	public void setAutokeys(List<Autokey> autokeys) {
+		this.autokeys = autokeys;
+	}
 
 	public MaxAttributeCfg(String objectname, String attributename, String alias, String autokeyname, int attributeno,
 			int canautonum, String classname, String columnname, String defaultvalue, String domainid,

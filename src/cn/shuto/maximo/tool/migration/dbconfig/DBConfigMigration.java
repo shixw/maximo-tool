@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import cn.shuto.maximo.tool.migration.dbconfig.bean.Autokey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxRelationship;
@@ -39,6 +40,7 @@ public class DBConfigMigration {
 	private static final String SELECTMAXSYSKEYS = "select IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID from maxsyskeys  where IXNAME = ?";
 	private static final String SELECTMAXRELATIONSHIP = "select NAME, PARENT, CHILD, WHERECLAUSE, REMARKS, MAXRELATIONSHIPID, CARDINALITY, DBJOINREQUIRED from maxrelationship where parent = ?";
 	private static final String SELECTMAXSEQUENCE = "select TBNAME, NAME, MAXRESERVED, MAXVALUE, RANGE, SEQUENCENAME, MAXSEQUENCEID from maxsequence where tbname = ?";
+	private static final String SELECTAUTOKEY = "select PREFIX, SEED, ORGID, SITEID, AUTOKEYNAME, SETID, LANGCODE, AUTOKEYID from autokey where AUTOKEYNAME = ?";
 
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
@@ -48,6 +50,7 @@ public class DBConfigMigration {
 	PreparedStatement maxsyskeysST = null;
 	PreparedStatement maxrelationshipST = null;
 	PreparedStatement maxsequenceST = null;
+	PreparedStatement autokeyST = null;
 
 	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
@@ -62,6 +65,7 @@ public class DBConfigMigration {
 				maxsyskeysST = conn.prepareStatement(SELECTMAXSYSKEYS);
 				maxrelationshipST = conn.prepareStatement(SELECTMAXRELATIONSHIP);
 				maxsequenceST = conn.prepareStatement(SELECTMAXSEQUENCE);
+				autokeyST = conn.prepareStatement(SELECTAUTOKEY);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -136,6 +140,7 @@ public class DBConfigMigration {
 
 	/**
 	 * 导出 Maxsequence 表数据
+	 * 
 	 * @param entityName
 	 * @return
 	 * @throws SQLException
@@ -229,16 +234,45 @@ public class DBConfigMigration {
 		List<MaxAttributeCfg> list = new ArrayList<MaxAttributeCfg>();
 		while (rs.next()) {
 			String attributename = NULLTOEMPTY(rs.getString(2));
+			String autokeyName = rs.getString(4);
 			_log.info("--导出属性：" + attributename + "----------------");
-			list.add(new MaxAttributeCfg(NULLTOEMPTY(rs.getString(1)), attributename, NULLTOEMPTY(rs.getString(3)),
-					NULLTOEMPTY(rs.getString(4)), rs.getInt(5), rs.getInt(6), NULLTOEMPTY(rs.getString(7)),
-					NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)), NULLTOEMPTY(rs.getString(10)),
-					rs.getInt(11), NULLTOEMPTY(rs.getString(12)), rs.getInt(13), rs.getInt(14), rs.getInt(15),
-					rs.getInt(16), NULLTOEMPTY(rs.getString(17)), rs.getInt(18), rs.getInt(19), rs.getInt(20),
-					rs.getInt(21), NULLTOEMPTY(rs.getString(22)), NULLTOEMPTY(rs.getString(23)),
-					NULLTOEMPTY(rs.getString(24)), rs.getInt(25), NULLTOEMPTY(rs.getString(26)), rs.getInt(27),
-					NULLTOEMPTY(rs.getString(29)), rs.getInt(30), rs.getInt(31), NULLTOEMPTY(rs.getString(32)),
-					rs.getInt(34), rs.getInt(35), NULLTOEMPTY(rs.getString(36)), NULLTOEMPTY(rs.getString(37))));
+			MaxAttributeCfg maxAttributeCfg = new MaxAttributeCfg(NULLTOEMPTY(rs.getString(1)), attributename,
+					NULLTOEMPTY(rs.getString(3)), NULLTOEMPTY(autokeyName), rs.getInt(5), rs.getInt(6),
+					NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)),
+					NULLTOEMPTY(rs.getString(10)), rs.getInt(11), NULLTOEMPTY(rs.getString(12)), rs.getInt(13),
+					rs.getInt(14), rs.getInt(15), rs.getInt(16), NULLTOEMPTY(rs.getString(17)), rs.getInt(18),
+					rs.getInt(19), rs.getInt(20), rs.getInt(21), NULLTOEMPTY(rs.getString(22)),
+					NULLTOEMPTY(rs.getString(23)), NULLTOEMPTY(rs.getString(24)), rs.getInt(25),
+					NULLTOEMPTY(rs.getString(26)), rs.getInt(27), NULLTOEMPTY(rs.getString(29)), rs.getInt(30),
+					rs.getInt(31), NULLTOEMPTY(rs.getString(32)), rs.getInt(34), rs.getInt(35),
+					NULLTOEMPTY(rs.getString(36)), NULLTOEMPTY(rs.getString(37)));
+
+			if (autokeyName != null) {
+				_log.info("--导出属性：" + attributename + "---对应的Autokey,名字为："+autokeyName+"-------------");
+				maxAttributeCfg.setAutokeys(exportAutokeyToJavaBean(autokeyName));
+			}
+
+			list.add(maxAttributeCfg);
+		}
+		rs.close();
+		return list;
+	}
+
+	/**
+	 * 导出 autokey 表数据
+	 * 
+	 * @param autokeyName
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<Autokey> exportAutokeyToJavaBean(String autokeyName) throws SQLException {
+		List<Autokey> list = new ArrayList<Autokey>();
+		autokeyST.setString(1, autokeyName);
+		ResultSet rs = autokeyST.executeQuery();
+		while (rs.next()) {
+			list.add(new Autokey(NULLTOEMPTY(rs.getString(1)), rs.getInt(2), NULLTOEMPTY(rs.getString(3)),
+					NULLTOEMPTY(rs.getString(4)), NULLTOEMPTY(rs.getString(5)), NULLTOEMPTY(rs.getString(6)),
+					NULLTOEMPTY(rs.getString(7))));
 		}
 		rs.close();
 		return list;
@@ -334,6 +368,8 @@ public class DBConfigMigration {
 				maxrelationshipST.close();
 			if (maxsequenceST != null)
 				maxsequenceST.close();
+			if (autokeyST != null)
+				autokeyST.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

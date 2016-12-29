@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.Autokey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxRelationship;
@@ -27,6 +28,12 @@ public class App {
 //		List<MaxAttributeCfg> maxAttributeCfgs = list.get(0).getMaxAttributeCfgs();
 //		for (MaxAttributeCfg maxAttributeCfg : maxAttributeCfgs) {
 //			System.out.println(maxAttributeCfg.toInsertSql());
+//			List<Autokey> autokeys = maxAttributeCfg.getAutokeys();
+//			if(autokeys!=null&&autokeys.size()>0)
+//				for (Autokey autokey : autokeys) {
+//					System.out.println(autokey.toInsertSql());
+//				}
+//				
 //		}
 //		
 //		List<MaxSysIndexes> maxSysIndexes = list.get(0).getMaxSysIndexes();

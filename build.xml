@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maximo-tool" basedir="." default="run">
+	<!-- 配置属性 -->
+	<property name="maximo-path" value="E:\Projects\maximo-xdj"></property>
+	<property name="maximo-lib" value="${maximo-path}\lib"></property>
+	
+	<property name="classes" value="bin"></property>
+	<property name="lib" value="lib"></property>
+
+	<target name="init">
+		<path id="ant.run.lib.path">
+			<pathelement path="${classes}" />
+			<fileset dir="${maximo-lib}">
+				<include name="**/*.jar" />
+			</fileset>
+			<fileset dir="${classes}">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+	</target>
+
+	<target name="run" id="run" depends="init">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />  
+			<classpath refid="ant.run.lib.path"></classpath>
+			<arg value="${maximo-path}"/>
+			<arg value="ST_PI_TASK,ST_PI_TASK_AREA"/>
+		</java>
+	</target>
+
+</project>

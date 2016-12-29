@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
 import cn.shuto.maximo.tool.util.DBUtil;
 import cn.shuto.maximo.tool.util.SerializeUtil;
 
@@ -23,6 +24,12 @@ public class App {
 //		List<MaxAttributeCfg> maxAttributeCfgs = list.get(0).getMaxAttributeCfgs();
 //		for (MaxAttributeCfg maxAttributeCfg : maxAttributeCfgs) {
 //			System.out.println(maxAttributeCfg.toInsertSql());
+//		}
+//		
+//		List<MaxSysIndexes> maxSysIndexes = list.get(0).getMaxSysIndexes();
+//		
+//		for (MaxSysIndexes maxSysIndex : maxSysIndexes) {
+//			System.out.println(maxSysIndex.toInsertSql());
 //		}
 //		
 		//注册系统退出事件，退出系统时关闭数据库连接

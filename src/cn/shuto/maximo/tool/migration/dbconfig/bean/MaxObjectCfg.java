@@ -30,9 +30,20 @@ public class MaxObjectCfg implements Serializable {
 	//关联对象
 	private MaxTableCfg maxTableCfg;
 	private List<MaxAttributeCfg> maxAttributeCfgs;
+	private List<MaxSysIndexes> maxSysIndexes;
 	
 	
 	
+	
+	
+	public List<MaxSysIndexes> getMaxSysIndexes() {
+		return maxSysIndexes;
+	}
+
+	public void setMaxSysIndexes(List<MaxSysIndexes> maxSysIndexes) {
+		this.maxSysIndexes = maxSysIndexes;
+	}
+
 	public List<MaxAttributeCfg> getMaxAttributeCfgs() {
 		return maxAttributeCfgs;
 	}

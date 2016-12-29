@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxAttributeCfg;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxRelationship;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysKey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
@@ -35,6 +36,7 @@ public class DBConfigMigration {
 	private static final String SELECTMAXATTRIBUTECFG = "select OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION from maxattributecfg where objectname = ?";
 	private static final String SELECTMAXSYSINDEXES = "select  NAME, TBNAME, UNIQUERULE, CHANGED, CLUSTERRULE, STORAGEPARTITION, REQUIRED, TEXTSEARCH, MAXSYSINDEXESID from maxsysindexes where tbname = ?";
 	private static final String SELECTMAXSYSKEYS = "select IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID from maxsyskeys  where IXNAME = ?";
+	private static final String SELECTMAXRELATIONSHIP = "select NAME, PARENT, CHILD, WHERECLAUSE, REMARKS, MAXRELATIONSHIPID, CARDINALITY, DBJOINREQUIRED from maxrelationship where parent = ?";
 
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
@@ -42,6 +44,7 @@ public class DBConfigMigration {
 	PreparedStatement maxattributecfgST = null;
 	PreparedStatement maxsysindexesST = null;
 	PreparedStatement maxsyskeysST = null;
+	PreparedStatement maxrelationshipST = null;
 
 	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
@@ -54,6 +57,7 @@ public class DBConfigMigration {
 				maxattributecfgST = conn.prepareStatement(SELECTMAXATTRIBUTECFG);
 				maxsysindexesST = conn.prepareStatement(SELECTMAXSYSINDEXES);
 				maxsyskeysST = conn.prepareStatement(SELECTMAXSYSKEYS);
+				maxrelationshipST = conn.prepareStatement(SELECTMAXRELATIONSHIP);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -115,9 +119,32 @@ public class DBConfigMigration {
 		// 导出 MaxAttributeCfg
 		_log.info("导出对象：" + objectName + " 对应的maxsysindexes表中的数据-");
 		maxobjectcfg.setMaxSysIndexes(exportMaxsysindexesToJavaBean(objectName));
-		// System.out.println(maxobjectcfg.getMaxTableCfg().toInsertSql());
+
+		// 导出 MaxRelationship
+		_log.info("导出对象：" + objectName + " 对应的MaxRelationship表中的数据-");
+		maxobjectcfg.setMaxRelationships(exportMaxrelationshipToJavaBean(objectName));
 
 		return maxobjectcfg;
+	}
+
+	/**
+	 * 导出 MaxRelationship 表数据
+	 * 
+	 * @param objectName
+	 * @return
+	 * @throws SQLException
+	 */
+	public List<MaxRelationship> exportMaxrelationshipToJavaBean(String objectName) throws SQLException {
+		List<MaxRelationship> list = new ArrayList<MaxRelationship>();
+		maxrelationshipST.setString(1, objectName);
+		ResultSet rs = maxrelationshipST.executeQuery();
+		while (rs.next()) {
+			list.add(new MaxRelationship(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)),
+					NULLTOEMPTY(rs.getString(3)), NULLTOEMPTY(rs.getString(4)), NULLTOEMPTY(rs.getString(5)),
+					NULLTOEMPTY(rs.getString(7)), rs.getInt(8)));
+		}
+		rs.close();
+		return list;
 	}
 
 	/**
@@ -278,6 +305,8 @@ public class DBConfigMigration {
 				maxsysindexesST.close();
 			if (maxsyskeysST != null)
 				maxsyskeysST.close();
+			if (maxrelationshipST != null)
+				maxrelationshipST.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

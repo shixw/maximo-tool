@@ -31,11 +31,17 @@ public class MaxObjectCfg implements Serializable {
 	private MaxTableCfg maxTableCfg;
 	private List<MaxAttributeCfg> maxAttributeCfgs;
 	private List<MaxSysIndexes> maxSysIndexes;
+	private List<MaxRelationship> maxRelationships;
 	
 	
-	
-	
-	
+	public List<MaxRelationship> getMaxRelationships() {
+		return maxRelationships;
+	}
+
+	public void setMaxRelationships(List<MaxRelationship> maxRelationships) {
+		this.maxRelationships = maxRelationships;
+	}
+
 	public List<MaxSysIndexes> getMaxSysIndexes() {
 		return maxSysIndexes;
 	}

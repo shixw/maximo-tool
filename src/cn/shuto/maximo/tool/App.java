@@ -22,8 +22,8 @@ public class App {
 			}
 		});
 		
-		DBConfigMigration dbcm = new DBConfigMigration(args[0]);
-		dbcm.exportDBConfig(args[1]);
+		DBConfigMigration dbcm = new DBConfigMigration(args[0],args[1]);
+		dbcm.exportDBConfig(args[2]);
 //		try {
 //			Thread.sleep(3000);
 //		} catch (InterruptedException e) {

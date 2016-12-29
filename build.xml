@@ -7,7 +7,11 @@
 	<property name="classes" value="bin"></property>
 	<property name="lib" value="lib"></property>
 
-	<target name="init">
+	<target name="clear">
+		<delete dir="${basedir}/package/dbconfig" >
+		</delete>
+	</target>
+	<target name="init" depends="clear">
 		<path id="ant.run.lib.path">
 			<pathelement path="${classes}" />
 			<fileset dir="${maximo-lib}">
@@ -17,6 +21,9 @@
 				<include name="**/*.jar" />
 			</fileset>
 		</path>
+		
+		<mkdir dir="${basedir}/package/dbconfig"/>
+		
 	</target>
 
 	<target name="run" id="run" depends="init">
@@ -24,6 +31,7 @@
 			<sysproperty key="file.encoding" value="UTF-8" />  
 			<classpath refid="ant.run.lib.path"></classpath>
 			<arg value="${maximo-path}"/>
+			<arg value="${basedir}"/>
 			<arg value="ST_PI_TASK,ST_PI_TASK_AREA"/>
 		</java>
 	</target>

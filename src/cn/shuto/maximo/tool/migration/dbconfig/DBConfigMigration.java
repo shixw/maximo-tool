@@ -1,13 +1,17 @@
 package cn.shuto.maximo.tool.migration.dbconfig;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
+import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxObjectCfg;
 import cn.shuto.maximo.tool.util.DBUtil;
+import cn.shuto.maximo.tool.util.SerializeUtil;
 
 /**
  * 数据库配置迁移
@@ -18,6 +22,7 @@ import cn.shuto.maximo.tool.util.DBUtil;
 public class DBConfigMigration {
 	private static Logger _log = Logger.getLogger(DBConfigMigration.class.getName());
 	private String MAXIMOPATH = null;
+	private String PACKAGEPATH = null;
 
 	private Connection conn = null;
 
@@ -25,9 +30,10 @@ public class DBConfigMigration {
 	private static final String INSERTMAXOBJECTCFG = "insert into maxobjectcfg ( OBJECTNAME, CLASSNAME, DESCRIPTION, EAUDITENABLED, EAUDITFILTER, ENTITYNAME, ESIGFILTER, EXTENDSOBJECT, IMPORTED, ISVIEW, PERSISTENT, SERVICENAME, SITEORGTYPE, USERDEFINED, CHANGED, MAINOBJECT, INTERNAL, MAXOBJECTID, TEXTDIRECTION) values ( '%s', '%s', '%s', %s , '%s', '%s', '%s', '%s', %s , %s , %s , '%s', '%s', %s ,'I', %s , %s , MAXOBJECTCFGSEQ.nextval, '%s');";
 	PreparedStatement maxobjectcfgST = null;
 
-	public DBConfigMigration(String maximoPath) {
+	public DBConfigMigration(String maximoPath,String packagePath) {
 		this.MAXIMOPATH = maximoPath;
-		conn = DBUtil.getInstance().getMaximoConnection(maximoPath);
+		this.PACKAGEPATH = packagePath;
+		conn = DBUtil.getInstance().getMaximoConnection(MAXIMOPATH);
 		if (conn != null) {
 			try {
 				maxobjectcfgST = conn.prepareStatement(SELECTMAXOBJECTCFG);
@@ -47,14 +53,18 @@ public class DBConfigMigration {
 		_log.info("---------- 需要导出的数据库配置的对象为:" + exportObjects);
 		// 需要导出的对象数组
 		String[] objects = buildExportObjects(exportObjects);
+		// 存储所有导出对象的集合
+		List<MaxObjectCfg> list = new ArrayList<MaxObjectCfg>();
 		// 遍历所有需要迁移的对象
 		for (String object : objects) {
 			try {
-				exportObject(object);
+				list.add(exportObject(object));
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
+		// 将导出的集合进行Java序列化
+		SerializeUtil.writeObject(list, new File(PACKAGEPATH+"\\package\\dbconfig\\BDConfig.mtep"));
 	}
 
 	/**
@@ -64,10 +74,33 @@ public class DBConfigMigration {
 	 * @param objectName
 	 * @throws SQLException
 	 */
-	private void exportObject(String objectName) throws SQLException {
+	private MaxObjectCfg exportObject(String objectName) throws SQLException {
+		_log.info("导出对象：" + objectName);
 		// 导出maxobjectcfg表
-		String insertsql = exportMaxobjectcfg(objectName);
-		System.out.println(insertsql);
+		MaxObjectCfg maxobjectcfg = exportMaxobjectcfgToJavaBean(objectName);
+		System.out.println(maxobjectcfg.toInsertSql());
+
+		return maxobjectcfg;
+	}
+
+	/**
+	 * 导出对象为JavaBean
+	 * 
+	 * @param objectName
+	 * @return
+	 * @throws SQLException
+	 */
+	public MaxObjectCfg exportMaxobjectcfgToJavaBean(String objectName) throws SQLException {
+
+		maxobjectcfgST.setString(1, objectName);
+		ResultSet rs = maxobjectcfgST.executeQuery();
+		if (rs.next()) {
+			return new MaxObjectCfg(rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getString(5),
+					rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10), rs.getInt(11),
+					rs.getString(12), rs.getString(13), rs.getInt(14), rs.getString(16), rs.getString(17),
+					rs.getString(19));
+		}
+		return null;
 	}
 
 	public String exportMaxobjectcfg(String objectName) throws SQLException {
@@ -75,10 +108,10 @@ public class DBConfigMigration {
 		maxobjectcfgST.setString(1, objectName);
 		ResultSet rs = maxobjectcfgST.executeQuery();
 		if (rs.next()) {
-			return String.format(INSERTMAXOBJECTCFG, rs.getString(1), rs.getString(2), rs.getString(3),
-					rs.getInt(4), rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8),
-					rs.getInt(9), rs.getInt(10), rs.getInt(11), rs.getString(12), rs.getString(13),
-					rs.getInt(14), rs.getString(16), rs.getString(17), rs.getString(19));
+			return String.format(INSERTMAXOBJECTCFG, rs.getString(1), rs.getString(2), rs.getString(3), rs.getInt(4),
+					rs.getString(5), rs.getString(6), rs.getString(7), rs.getString(8), rs.getInt(9), rs.getInt(10),
+					rs.getInt(11), rs.getString(12), rs.getString(13), rs.getInt(14), rs.getString(16),
+					rs.getString(17), rs.getString(19));
 		}
 		return null;
 	}

@@ -19,6 +19,7 @@ import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysKey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
+import cn.shuto.maximo.tool.util.CommonUtil;
 import cn.shuto.maximo.tool.util.DBUtil;
 import cn.shuto.maximo.tool.util.SerializeUtil;
 
@@ -147,7 +148,7 @@ public class DBConfigMigration {
 	public void exportDBConfig(String exportObjects) {
 		_log.info("---------- 需要导出的数据库配置的对象为:" + exportObjects);
 		// 需要导出的对象数组
-		exportDBConfig(buildExportObjects(exportObjects));
+		exportDBConfig(CommonUtil.buildExportObjects(exportObjects));
 	}
 
 	/**
@@ -225,8 +226,8 @@ public class DBConfigMigration {
 		maxsequenceST.setString(1, entityName);
 		ResultSet rs = maxsequenceST.executeQuery();
 		while (rs.next()) {
-			list.add(new MaxSequence(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)), rs.getInt(3),
-					rs.getInt(4), rs.getInt(5), NULLTOEMPTY(rs.getString(6))));
+			list.add(new MaxSequence(CommonUtil.NULLTOEMPTY(rs.getString(1)), CommonUtil.NULLTOEMPTY(rs.getString(2)), rs.getInt(3),
+					rs.getInt(4), rs.getInt(5), CommonUtil.NULLTOEMPTY(rs.getString(6))));
 		}
 		rs.close();
 		return list;
@@ -244,9 +245,9 @@ public class DBConfigMigration {
 		maxrelationshipST.setString(1, objectName);
 		ResultSet rs = maxrelationshipST.executeQuery();
 		while (rs.next()) {
-			list.add(new MaxRelationship(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)),
-					NULLTOEMPTY(rs.getString(3)), NULLTOEMPTY(rs.getString(4)), NULLTOEMPTY(rs.getString(5)),
-					NULLTOEMPTY(rs.getString(7)), rs.getInt(8)));
+			list.add(new MaxRelationship(CommonUtil.NULLTOEMPTY(rs.getString(1)), CommonUtil.NULLTOEMPTY(rs.getString(2)),
+					CommonUtil.NULLTOEMPTY(rs.getString(3)), CommonUtil.NULLTOEMPTY(rs.getString(4)), CommonUtil.NULLTOEMPTY(rs.getString(5)),
+					CommonUtil.NULLTOEMPTY(rs.getString(7)), rs.getInt(8)));
 		}
 		rs.close();
 		return list;
@@ -264,10 +265,10 @@ public class DBConfigMigration {
 		List<MaxSysIndexes> maxSysIndexes = new ArrayList<MaxSysIndexes>();
 		ResultSet rs = maxsysindexesST.executeQuery();
 		while (rs.next()) {
-			String name = NULLTOEMPTY(rs.getString(1));
+			String name = CommonUtil.NULLTOEMPTY(rs.getString(1));
 			_log.info("--导出索引名字为：" + name + " 的数据----------------");
-			MaxSysIndexes maxSysIndex = new MaxSysIndexes(name, NULLTOEMPTY(rs.getString(2)),
-					NULLTOEMPTY(rs.getString(3)), rs.getInt(5), NULLTOEMPTY(rs.getString(6)), rs.getInt(7),
+			MaxSysIndexes maxSysIndex = new MaxSysIndexes(name, CommonUtil.NULLTOEMPTY(rs.getString(2)),
+					CommonUtil.NULLTOEMPTY(rs.getString(3)), rs.getInt(5), CommonUtil.NULLTOEMPTY(rs.getString(6)), rs.getInt(7),
 					rs.getInt(8));
 
 			_log.info("--导出索引名字为：" + name + " maxsyskeys 表的数据----------------");
@@ -290,8 +291,8 @@ public class DBConfigMigration {
 		maxsyskeysST.setString(1, indexName);
 		ResultSet rs = maxsyskeysST.executeQuery();
 		while (rs.next()) {
-			list.add(new MaxSysKey(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)), rs.getInt(3),
-					NULLTOEMPTY(rs.getString(4))));
+			list.add(new MaxSysKey(CommonUtil.NULLTOEMPTY(rs.getString(1)), CommonUtil.NULLTOEMPTY(rs.getString(2)), rs.getInt(3),
+					CommonUtil.NULLTOEMPTY(rs.getString(4))));
 		}
 		rs.close();
 		return list;
@@ -308,19 +309,19 @@ public class DBConfigMigration {
 		ResultSet rs = maxattributecfgST.executeQuery();
 		List<MaxAttributeCfg> list = new ArrayList<MaxAttributeCfg>();
 		while (rs.next()) {
-			String attributename = NULLTOEMPTY(rs.getString(2));
+			String attributename = CommonUtil.NULLTOEMPTY(rs.getString(2));
 			String autokeyName = rs.getString(4);
 			_log.info("--导出属性：" + attributename + "----------------");
-			MaxAttributeCfg maxAttributeCfg = new MaxAttributeCfg(NULLTOEMPTY(rs.getString(1)), attributename,
-					NULLTOEMPTY(rs.getString(3)), NULLTOEMPTY(autokeyName), rs.getInt(5), rs.getInt(6),
-					NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)),
-					NULLTOEMPTY(rs.getString(10)), rs.getInt(11), NULLTOEMPTY(rs.getString(12)), rs.getInt(13),
-					rs.getInt(14), rs.getInt(15), rs.getInt(16), NULLTOEMPTY(rs.getString(17)), rs.getInt(18),
-					rs.getInt(19), rs.getInt(20), NULLTOEMPTY(rs.getString(21)), NULLTOEMPTY(rs.getString(22)),
-					NULLTOEMPTY(rs.getString(23)), NULLTOEMPTY(rs.getString(24)), rs.getInt(25),
-					NULLTOEMPTY(rs.getString(26)), rs.getInt(27), NULLTOEMPTY(rs.getString(29)), rs.getInt(30),
-					rs.getInt(31), NULLTOEMPTY(rs.getString(32)), rs.getInt(34), rs.getInt(35),
-					NULLTOEMPTY(rs.getString(36)), NULLTOEMPTY(rs.getString(37)));
+			MaxAttributeCfg maxAttributeCfg = new MaxAttributeCfg(CommonUtil.NULLTOEMPTY(rs.getString(1)), attributename,
+					CommonUtil.NULLTOEMPTY(rs.getString(3)), CommonUtil.NULLTOEMPTY(autokeyName), rs.getInt(5), rs.getInt(6),
+					CommonUtil.NULLTOEMPTY(rs.getString(7)), CommonUtil.NULLTOEMPTY(rs.getString(8)), CommonUtil.NULLTOEMPTY(rs.getString(9)),
+					CommonUtil.NULLTOEMPTY(rs.getString(10)), rs.getInt(11), CommonUtil.NULLTOEMPTY(rs.getString(12)), rs.getInt(13),
+					rs.getInt(14), rs.getInt(15), rs.getInt(16), CommonUtil.NULLTOEMPTY(rs.getString(17)), rs.getInt(18),
+					rs.getInt(19), rs.getInt(20), CommonUtil.NULLTOEMPTY(rs.getString(21)), CommonUtil.NULLTOEMPTY(rs.getString(22)),
+					CommonUtil.NULLTOEMPTY(rs.getString(23)), CommonUtil.NULLTOEMPTY(rs.getString(24)), rs.getInt(25),
+					CommonUtil.NULLTOEMPTY(rs.getString(26)), rs.getInt(27), CommonUtil.NULLTOEMPTY(rs.getString(29)), rs.getInt(30),
+					rs.getInt(31), CommonUtil.NULLTOEMPTY(rs.getString(32)), rs.getInt(34), rs.getInt(35),
+					CommonUtil.NULLTOEMPTY(rs.getString(36)), CommonUtil.NULLTOEMPTY(rs.getString(37)));
 
 			if (autokeyName != null) {
 				_log.info("--导出属性：" + attributename + "---对应的Autokey,名字为：" + autokeyName + "-------------");
@@ -345,9 +346,9 @@ public class DBConfigMigration {
 		autokeyST.setString(1, autokeyName);
 		ResultSet rs = autokeyST.executeQuery();
 		while (rs.next()) {
-			list.add(new Autokey(NULLTOEMPTY(rs.getString(1)), rs.getInt(2), NULLTOEMPTY(rs.getString(3)),
-					NULLTOEMPTY(rs.getString(4)), NULLTOEMPTY(rs.getString(5)), NULLTOEMPTY(rs.getString(6)),
-					NULLTOEMPTY(rs.getString(7))));
+			list.add(new Autokey(CommonUtil.NULLTOEMPTY(rs.getString(1)), rs.getInt(2), CommonUtil.NULLTOEMPTY(rs.getString(3)),
+					CommonUtil.NULLTOEMPTY(rs.getString(4)), CommonUtil.NULLTOEMPTY(rs.getString(5)), CommonUtil.NULLTOEMPTY(rs.getString(6)),
+					CommonUtil.NULLTOEMPTY(rs.getString(7))));
 		}
 		rs.close();
 		return list;
@@ -364,11 +365,11 @@ public class DBConfigMigration {
 		maxtablecfgST.setString(1, entityName);
 		ResultSet rs = maxtablecfgST.executeQuery();
 		if (rs.next()) {
-			return new MaxTableCfg(NULLTOEMPTY(rs.getString(1)), rs.getInt(2), NULLTOEMPTY(rs.getString(3)),
-					rs.getInt(4), rs.getInt(5), NULLTOEMPTY(rs.getString(6)), rs.getInt(7),
-					NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)), NULLTOEMPTY(rs.getString(10)),
-					rs.getInt(11), NULLTOEMPTY(rs.getString(13)), NULLTOEMPTY(rs.getString(14)),
-					NULLTOEMPTY(rs.getString(15)));
+			return new MaxTableCfg(CommonUtil.NULLTOEMPTY(rs.getString(1)), rs.getInt(2), CommonUtil.NULLTOEMPTY(rs.getString(3)),
+					rs.getInt(4), rs.getInt(5), CommonUtil.NULLTOEMPTY(rs.getString(6)), rs.getInt(7),
+					CommonUtil.NULLTOEMPTY(rs.getString(8)), CommonUtil.NULLTOEMPTY(rs.getString(9)), CommonUtil.NULLTOEMPTY(rs.getString(10)),
+					rs.getInt(11), CommonUtil.NULLTOEMPTY(rs.getString(13)), CommonUtil.NULLTOEMPTY(rs.getString(14)),
+					CommonUtil.NULLTOEMPTY(rs.getString(15)));
 		}
 		rs.close();
 		return null;
@@ -386,12 +387,12 @@ public class DBConfigMigration {
 		maxobjectcfgST.setString(1, objectName);
 		ResultSet rs = maxobjectcfgST.executeQuery();
 		if (rs.next()) {
-			return new MaxObjectCfg(NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)),
-					NULLTOEMPTY(rs.getString(3)), rs.getInt(4), NULLTOEMPTY(rs.getString(5)),
-					NULLTOEMPTY(rs.getString(6)), NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)),
-					rs.getInt(9), rs.getInt(10), rs.getInt(11), NULLTOEMPTY(rs.getString(12)),
-					NULLTOEMPTY(rs.getString(13)), rs.getInt(14), NULLTOEMPTY(rs.getString(16)),
-					NULLTOEMPTY(rs.getString(17)), NULLTOEMPTY(rs.getString(19)));
+			return new MaxObjectCfg(CommonUtil.NULLTOEMPTY(rs.getString(1)), CommonUtil.NULLTOEMPTY(rs.getString(2)),
+					CommonUtil.NULLTOEMPTY(rs.getString(3)), rs.getInt(4), CommonUtil.NULLTOEMPTY(rs.getString(5)),
+					CommonUtil.NULLTOEMPTY(rs.getString(6)), CommonUtil.NULLTOEMPTY(rs.getString(7)), CommonUtil.NULLTOEMPTY(rs.getString(8)),
+					rs.getInt(9), rs.getInt(10), rs.getInt(11), CommonUtil.NULLTOEMPTY(rs.getString(12)),
+					CommonUtil.NULLTOEMPTY(rs.getString(13)), rs.getInt(14), CommonUtil.NULLTOEMPTY(rs.getString(16)),
+					CommonUtil.NULLTOEMPTY(rs.getString(17)), CommonUtil.NULLTOEMPTY(rs.getString(19)));
 		}
 		rs.close();
 		return null;
@@ -402,26 +403,17 @@ public class DBConfigMigration {
 		maxobjectcfgST.setString(1, objectName);
 		ResultSet rs = maxobjectcfgST.executeQuery();
 		if (rs.next()) {
-			return String.format(INSERTMAXOBJECTCFG, NULLTOEMPTY(rs.getString(1)), NULLTOEMPTY(rs.getString(2)),
-					NULLTOEMPTY(rs.getString(3)), rs.getInt(4), NULLTOEMPTY(rs.getString(5)),
-					NULLTOEMPTY(rs.getString(6)), NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)),
-					rs.getInt(9), rs.getInt(10), rs.getInt(11), NULLTOEMPTY(rs.getString(12)),
-					NULLTOEMPTY(rs.getString(13)), rs.getInt(14), NULLTOEMPTY(rs.getString(16)),
-					NULLTOEMPTY(rs.getString(17)), NULLTOEMPTY(rs.getString(19)));
+			return String.format(INSERTMAXOBJECTCFG, CommonUtil.NULLTOEMPTY(rs.getString(1)), CommonUtil.NULLTOEMPTY(rs.getString(2)),
+					CommonUtil.NULLTOEMPTY(rs.getString(3)), rs.getInt(4), CommonUtil.NULLTOEMPTY(rs.getString(5)),
+					CommonUtil.NULLTOEMPTY(rs.getString(6)), CommonUtil.NULLTOEMPTY(rs.getString(7)), CommonUtil.NULLTOEMPTY(rs.getString(8)),
+					rs.getInt(9), rs.getInt(10), rs.getInt(11), CommonUtil.NULLTOEMPTY(rs.getString(12)),
+					CommonUtil.NULLTOEMPTY(rs.getString(13)), rs.getInt(14), CommonUtil.NULLTOEMPTY(rs.getString(16)),
+					CommonUtil.NULLTOEMPTY(rs.getString(17)), CommonUtil.NULLTOEMPTY(rs.getString(19)));
 		}
 		rs.close();
 		return null;
 	}
 
-	/**
-	 * 判断字段是否为空 如果空 返回 "" 不能返回 "null"
-	 * 
-	 * @param v
-	 * @return
-	 */
-	private String NULLTOEMPTY(String v) {
-		return v == null ? "" : v;
-	}
 
 	/**
 	 * 关闭打开的资源
@@ -452,14 +444,6 @@ public class DBConfigMigration {
 		}
 	}
 
-	/**
-	 * 以 “,” 为分隔符构建需要导出的对象数组
-	 * 
-	 * @param exportObjects
-	 * @return
-	 */
-	private String[] buildExportObjects(String exportObjects) {
-		return exportObjects.split(",");
-	}
+
 
 }

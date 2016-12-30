@@ -1,38 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="maximo-tool" basedir="." default="run">
+<project name="maximo-tool" basedir="." default="importdbconfig">
 	<!-- 配置属性 -->
-	<property name="maximo-path" value="E:\Projects\maximo-xdj"></property>
-	<property name="maximo-lib" value="${maximo-path}\lib"></property>
-	
-	<property name="classes" value="bin"></property>
-	<property name="lib" value="lib"></property>
+	<property name="maximo-path" value="E:\Projects\maximo-xdj">
+	</property>
+	<property name="maximo-lib" value="${maximo-path}\lib">
+	</property>
+
+	<property name="classes" value="bin">
+	</property>
+	<property name="lib" value="lib">
+	</property>
 
 	<target name="clear">
-		<delete dir="${basedir}/package/dbconfig" >
+		<delete dir="${basedir}/package/dbconfig">
 		</delete>
 	</target>
 	<target name="init" depends="clear">
-		<path id="ant.run.lib.path">
-			<pathelement path="${classes}" />
-			<fileset dir="${maximo-lib}">
-				<include name="**/*.jar" />
-			</fileset>
-			<fileset dir="${classes}">
-				<include name="**/*.jar" />
-			</fileset>
-		</path>
-		
-		<mkdir dir="${basedir}/package/dbconfig"/>
-		
+		<mkdir dir="${basedir}/package/dbconfig" />
 	</target>
 
-	<target name="run" id="run" depends="init">
+	<path id="ant.run.lib.path">
+		<pathelement path="${classes}" />
+		<fileset dir="${maximo-lib}">
+			<include name="**/*.jar" />
+		</fileset>
+		<fileset dir="${classes}">
+			<include name="**/*.jar" />
+		</fileset>
+	</path>
+
+	<target name="exportdbconfig" id="exportdbconfig" depends="init">
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
-			<sysproperty key="file.encoding" value="UTF-8" />  
-			<classpath refid="ant.run.lib.path"></classpath>
-			<arg value="${maximo-path}"/>
-			<arg value="${basedir}"/>
-			<arg value="ST_PI_TASK,ST_PI_TASK_AREA"/>
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-exportdbconfig" />
+			<arg value="${maximo-path}" />
+			<arg value="${basedir}" />
+			<arg value="ST_PI_TASK,ST_PI_TASK_AREA" />
+		</java>
+	</target>
+	<target name="importdbconfig" id="importdbconfig">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-importdbconfig" />
+			<arg value="${maximo-path}" />
+			<arg value="${basedir}" />
 		</java>
 	</target>
 

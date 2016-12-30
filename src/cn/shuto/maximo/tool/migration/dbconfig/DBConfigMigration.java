@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -30,6 +31,7 @@ public class DBConfigMigration {
 	private static Logger _log = Logger.getLogger(DBConfigMigration.class.getName());
 	private String MAXIMOPATH = null;
 	private String PACKAGEPATH = null;
+	private String DBCONFIGFILEPATH = "\\package\\dbconfig\\BDConfig.mtep";
 
 	private Connection conn = null;
 
@@ -51,6 +53,7 @@ public class DBConfigMigration {
 	PreparedStatement maxrelationshipST = null;
 	PreparedStatement maxsequenceST = null;
 	PreparedStatement autokeyST = null;
+	Statement importDBConfigST = null;
 
 	public DBConfigMigration(String maximoPath, String packagePath) {
 		this.MAXIMOPATH = maximoPath;
@@ -66,10 +69,87 @@ public class DBConfigMigration {
 				maxrelationshipST = conn.prepareStatement(SELECTMAXRELATIONSHIP);
 				maxsequenceST = conn.prepareStatement(SELECTMAXSEQUENCE);
 				autokeyST = conn.prepareStatement(SELECTAUTOKEY);
+
+				importDBConfigST = conn.createStatement();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void importDBConfig() {
+		// 反序列化数据 路径下的 数据
+		List<MaxObjectCfg> list = SerializeUtil.readObjectForList(new File(PACKAGEPATH + DBCONFIGFILEPATH));
+		try {
+			// 遍历 maxobjectcfg 集合
+			for (MaxObjectCfg maxObjectCfg : list) {
+				_log.info("--插入maxobjectcfg--" + maxObjectCfg.toInsertSql());
+				importDBConfigST.addBatch(maxObjectCfg.toInsertSql());
+				if (maxObjectCfg.getMaxTableCfg() != null) {
+					// 关联的 maxtablecfg
+					_log.info("--插入maxtablecfg--" + maxObjectCfg.getMaxTableCfg().toInsertSql());
+					importDBConfigST.addBatch(maxObjectCfg.getMaxTableCfg().toInsertSql());
+				}
+				// 关联的 maxAttributeCfg
+				_log.info("--插入maxAttributeCfg---------");
+				List<MaxAttributeCfg> maxAttributeCfgs = maxObjectCfg.getMaxAttributeCfgs();
+				for (MaxAttributeCfg maxAttributeCfg : maxAttributeCfgs) {
+					_log.info("-----插入：" + maxAttributeCfg.toInsertSql());
+					importDBConfigST.addBatch(maxAttributeCfg.toInsertSql());
+
+					_log.info("--插入autokey---------");
+					List<Autokey> autokeys = maxAttributeCfg.getAutokeys();
+					if (autokeys != null && autokeys.size() > 0)
+						for (Autokey autokey : autokeys) {
+							_log.info("--插入：" + autokey.toInsertSql());
+							importDBConfigST.addBatch(autokey.toInsertSql());
+						}
+
+				}
+				_log.info("--插入 MaxSysIndexes---------");
+				List<MaxSysIndexes> maxSysIndexes = maxObjectCfg.getMaxSysIndexes();
+				for (MaxSysIndexes maxSysIndex : maxSysIndexes) {
+					_log.info("--插入：" + maxSysIndex.toInsertSql());
+					importDBConfigST.addBatch(maxSysIndex.toInsertSql());
+					_log.info("--插入 maxSysKeys---------");
+					List<MaxSysKey> maxSysKeys = maxSysIndex.getMaxSysKeys();
+					for (MaxSysKey maxSysKey : maxSysKeys) {
+						_log.info("--插入：" + maxSysKey.toInsertSql());
+						importDBConfigST.addBatch(maxSysKey.toInsertSql());
+					}
+				}
+				_log.info("--插入 MaxRelationship---------");
+				List<MaxRelationship> maxRelationships = maxObjectCfg.getMaxRelationships();
+				if (maxRelationships != null && maxRelationships.size() > 0)
+					for (MaxRelationship maxRelationship : maxRelationships) {
+						_log.info("--插入：" + maxRelationship.toInsertSql());
+						importDBConfigST.addBatch(maxRelationship.toInsertSql());
+					}
+				_log.info("--插入 maxSequences---------");
+				List<MaxSequence> maxSequences = maxObjectCfg.getMaxSequences();
+				if (maxSequences != null && maxSequences.size() > 0)
+					for (MaxSequence maxSequence : maxSequences) {
+						_log.info("--插入：" + maxSequence.toInsertSql());
+						importDBConfigST.addBatch(maxSequence.toInsertSql());
+					}
+
+			}
+			importDBConfigST.executeBatch();
+			conn.commit();
+		} catch (SQLException e) {
+			try {
+				// 事务回滚
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		}
+	}
+
+	public void exportDBConfig(String exportObjects) {
+		// 需要导出的对象数组
+		exportDBConfig(buildExportObjects(exportObjects));
 	}
 
 	/**
@@ -78,16 +158,14 @@ public class DBConfigMigration {
 	 * @param exportObjects
 	 *            导出数据库配置的多个对象，以逗号分开
 	 */
-	public void exportDBConfig(String exportObjects) {
+	public void exportDBConfig(String[] exportObjects) {
 		_log.info("---------- 需要导出的数据库配置的对象为:" + exportObjects);
-		// 需要导出的对象数组
-		String[] objects = buildExportObjects(exportObjects);
 		// 存储所有导出对象的集合
 		List<MaxObjectCfg> list = new ArrayList<MaxObjectCfg>();
 		// 遍历所有需要迁移的对象
 
 		try {
-			for (String object : objects) {
+			for (String object : exportObjects) {
 				list.add(exportObject(object));
 			}
 		} catch (SQLException e) {
@@ -96,7 +174,7 @@ public class DBConfigMigration {
 			closeResource();
 		}
 		// 将导出的集合进行Java序列化
-		SerializeUtil.writeObject(list, new File(PACKAGEPATH + "\\package\\dbconfig\\BDConfig.mtep"));
+		SerializeUtil.writeObject(list, new File(PACKAGEPATH + DBCONFIGFILEPATH));
 	}
 
 	/**
@@ -248,7 +326,7 @@ public class DBConfigMigration {
 					NULLTOEMPTY(rs.getString(36)), NULLTOEMPTY(rs.getString(37)));
 
 			if (autokeyName != null) {
-				_log.info("--导出属性：" + attributename + "---对应的Autokey,名字为："+autokeyName+"-------------");
+				_log.info("--导出属性：" + attributename + "---对应的Autokey,名字为：" + autokeyName + "-------------");
 				maxAttributeCfg.setAutokeys(exportAutokeyToJavaBean(autokeyName));
 			}
 
@@ -370,6 +448,8 @@ public class DBConfigMigration {
 				maxsequenceST.close();
 			if (autokeyST != null)
 				autokeyST.close();
+			if (importDBConfigST != null)
+				importDBConfigST.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

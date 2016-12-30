@@ -22,6 +22,7 @@ public class DBUtil {
 			Class.forName(config.getProperty("mxe.db.driver"));
 			conn = DriverManager.getConnection(config.getProperty("mxe.db.url"),
 					config.getProperty("mxe.db.user"), config.getProperty("mxe.db.password"));
+			conn.setAutoCommit(false);
 			return conn;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();

@@ -3,6 +3,7 @@ package cn.shuto.maximo.tool;
 import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
+import cn.shuto.maximo.tool.system.SystemEnvironmental;
 import cn.shuto.maximo.tool.util.DBUtil;
 
 /**
@@ -12,8 +13,8 @@ import cn.shuto.maximo.tool.util.DBUtil;
 public class App {
 	private static Logger _log = Logger.getLogger(App.class.getName());
 
-	public static void main(String[] args) {
-		//注册系统退出事件，退出系统时关闭数据库连接
+	public static void main(String[] argv) {
+		// 注册系统退出事件，退出系统时关闭数据库连接
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -21,17 +22,25 @@ public class App {
 				DBUtil.getInstance().closeConnection();
 			}
 		});
-		String option = args[0];
-		if(option!=null&&!"".equals(option)){
-			if("-exportdbconfig".equals(option)){
-				DBConfigMigration dbcm = new DBConfigMigration(args[1], args[2]);
-				dbcm.exportDBConfig(args[3]);
+
+		SystemEnvironmental systemEnvironmental = SystemEnvironmental.getInstance();
+		// 解析参数
+		for (int i = 0; i < argv.length; i++) {
+			String[] paramArray = argv[i].split("=");
+			systemEnvironmental.putParam(paramArray[0], paramArray[1]);
+		}
+		//获取操作
+		String option = systemEnvironmental.getStringParam("-option");
+		if (option != null && !"".equals(option)) {
+			if ("exportdbconfig".equals(option)) {
+				DBConfigMigration dbcm = new DBConfigMigration();
+				dbcm.exportDBConfig(systemEnvironmental.getStringParam("-exportobjects"));
 			}
-			if("-importdbconfig".equals(option)){
-				DBConfigMigration dbcm = new DBConfigMigration(args[1], args[2]);
+			if ("importdbconfig".equals(option)) {
+				DBConfigMigration dbcm = new DBConfigMigration();
 				dbcm.importDBConfig();
 			}
 		}
-		
+
 	}
 }

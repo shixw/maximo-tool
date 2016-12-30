@@ -110,10 +110,10 @@
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
 			</classpath>
-			<arg value="-exportdbconfig" />
-			<arg value="${maximo.path}" />
-			<arg value="${basedir}" />
-			<arg value="${exportobjects}" />
+			<arg value="-option=exportdbconfig" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-packagepath=${basedir}" />
+			<arg value="-exportobjects=${exportobjects}" />
 		</java>
 	</target>
 	<!-- 从到处的文件中 导入数据库配置 -->
@@ -122,9 +122,9 @@
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
 			</classpath>
-			<arg value="-importdbconfig" />
-			<arg value="${maximo.path}" />
-			<arg value="${basedir}" />
+			<arg value="-option=importdbconfig" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-importpath=${basedir}" />
 		</java>
 	</target>
 	<!-- 调用maximo系统代码配置数据库 需要停止Maximo服务 -->

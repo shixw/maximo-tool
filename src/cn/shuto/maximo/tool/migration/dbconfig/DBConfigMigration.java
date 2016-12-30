@@ -18,6 +18,7 @@ import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSequence;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysIndexes;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxSysKey;
 import cn.shuto.maximo.tool.migration.dbconfig.bean.MaxTableCfg;
+import cn.shuto.maximo.tool.system.SystemEnvironmental;
 import cn.shuto.maximo.tool.util.DBUtil;
 import cn.shuto.maximo.tool.util.SerializeUtil;
 
@@ -29,8 +30,6 @@ import cn.shuto.maximo.tool.util.SerializeUtil;
  */
 public class DBConfigMigration {
 	private static Logger _log = Logger.getLogger(DBConfigMigration.class.getName());
-	private String MAXIMOPATH = null;
-	private String PACKAGEPATH = null;
 	private String DBCONFIGFILEPATH = "\\package\\dbconfig\\BDConfig.mtep";
 
 	private Connection conn = null;
@@ -55,10 +54,8 @@ public class DBConfigMigration {
 	PreparedStatement autokeyST = null;
 	Statement importDBConfigST = null;
 
-	public DBConfigMigration(String maximoPath, String packagePath) {
-		this.MAXIMOPATH = maximoPath;
-		this.PACKAGEPATH = packagePath;
-		conn = DBUtil.getInstance().getMaximoConnection(MAXIMOPATH);
+	public DBConfigMigration() {
+		conn = DBUtil.getInstance().getMaximoConnection(SystemEnvironmental.getInstance().getStringParam("-maximopath"));
 		if (conn != null) {
 			try {
 				maxobjectcfgST = conn.prepareStatement(SELECTMAXOBJECTCFG);
@@ -79,7 +76,7 @@ public class DBConfigMigration {
 
 	public void importDBConfig() {
 		// 反序列化数据 路径下的 数据
-		List<MaxObjectCfg> list = SerializeUtil.readObjectForList(new File(PACKAGEPATH + DBCONFIGFILEPATH));
+		List<MaxObjectCfg> list = SerializeUtil.readObjectForList(new File(SystemEnvironmental.getInstance().getStringParam("-importpath") + DBCONFIGFILEPATH));
 		try {
 			// 遍历 maxobjectcfg 集合
 			for (MaxObjectCfg maxObjectCfg : list) {
@@ -148,6 +145,7 @@ public class DBConfigMigration {
 	}
 
 	public void exportDBConfig(String exportObjects) {
+		_log.info("---------- 需要导出的数据库配置的对象为:" + exportObjects);
 		// 需要导出的对象数组
 		exportDBConfig(buildExportObjects(exportObjects));
 	}
@@ -159,7 +157,6 @@ public class DBConfigMigration {
 	 *            导出数据库配置的多个对象，以逗号分开
 	 */
 	public void exportDBConfig(String[] exportObjects) {
-		_log.info("---------- 需要导出的数据库配置的对象为:" + exportObjects);
 		// 存储所有导出对象的集合
 		List<MaxObjectCfg> list = new ArrayList<MaxObjectCfg>();
 		// 遍历所有需要迁移的对象
@@ -174,7 +171,7 @@ public class DBConfigMigration {
 			closeResource();
 		}
 		// 将导出的集合进行Java序列化
-		SerializeUtil.writeObject(list, new File(PACKAGEPATH + DBCONFIGFILEPATH));
+		SerializeUtil.writeObject(list, new File(SystemEnvironmental.getInstance().getStringParam("-packagepath") + DBCONFIGFILEPATH));
 	}
 
 	/**

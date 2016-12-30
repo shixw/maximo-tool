@@ -14,6 +14,7 @@
 2. 将导出的归档文件导入到指定的系统中并自动配置数据库变更。
 
 ### 域迁移
+支持导出导入域主表，字母数字域 对应的 alndomain 表
 
 ### 应用程序设计器
 主要功能有两个：
@@ -21,9 +22,11 @@
 2. 将导出的归档文件导入到指定的系统中包括导入系统的XML。
 
 ## 参数说明
-- **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置)
+- **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置) ; 3. exportdomainadm(导出域配置) ; 4. importdomainadm (导入域配置)
 - **-maximopath**：maximo的发布包的路径
 - **-packagepath**：数据导出的路径
 - **-importpath**：数据导入的路径
+- **-exportdomainids**：需要导出的域的ID,用","分割
+- **-exportobjects**：需要导出的对象,用","分割
 
 ## Ant脚本参数说明

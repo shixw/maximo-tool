@@ -27,7 +27,7 @@ public class MaxAttributeCfg implements Serializable {
 	private int mustbe;
 	private int required;
 	private int persistent;
-	private int primarykeycolseq;
+	private String primarykeycolseq;
 	private String remarks;
 	private String sameasattribute;
 	private String sameasobject;
@@ -61,7 +61,7 @@ public class MaxAttributeCfg implements Serializable {
 	public MaxAttributeCfg(String objectname, String attributename, String alias, String autokeyname, int attributeno,
 			int canautonum, String classname, String columnname, String defaultvalue, String domainid,
 			int eauditenabled, String entityname, int esigenabled, int isldowner, int ispositive, int length,
-			String maxtype, int mustbe, int required, int persistent, int primarykeycolseq, String remarks,
+			String maxtype, int mustbe, int required, int persistent, String primarykeycolseq, String remarks,
 			String sameasattribute, String sameasobject, int scale, String title, int userdefined, 
 			String searchtype, int mlsupported, int mlinuse, String handlecolumnname, 
 			int restricted, int localizable, String textdirection, String complexexpression) {
@@ -263,11 +263,11 @@ public class MaxAttributeCfg implements Serializable {
 		this.persistent = persistent;
 	}
 
-	public int getPrimarykeycolseq() {
+	public String getPrimarykeycolseq() {
 		return primarykeycolseq;
 	}
 
-	public void setPrimarykeycolseq(int primarykeycolseq) {
+	public void setPrimarykeycolseq(String primarykeycolseq) {
 		this.primarykeycolseq = primarykeycolseq;
 	}
 
@@ -399,7 +399,7 @@ public class MaxAttributeCfg implements Serializable {
 		this.complexexpression = complexexpression;
 	}
 
-	private static final String INSERTMAXATTRIBUTECFG = "insert into maxattributecfg ( OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION) values ( '%s', '%s', '%s', '%s', %s, %s, '%s', '%s', '%s', '%s', %s, '%s', %s, %s, %s, %s, '%s', %s, %s, %s, %s, '%s', '%s', '%s', %s, '%s', %s,'%s', '%s', %s, %s, '%s', %s, %s, %s, '%s', '%s')";
+	private static final String INSERTMAXATTRIBUTECFG = "insert into maxattributecfg ( OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION) values ( '%s', '%s', '%s', '%s', %s, %s, '%s', '%s', '%s', '%s', %s, '%s', %s, %s, %s, %s, '%s', %s, %s, %s, '%s', '%s', '%s', '%s', %s, '%s', %s,'%s', '%s', %s, %s, '%s', %s, %s, %s, '%s', '%s')";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXATTRIBUTECFG, this.objectname, this.attributename, this.alias, this.autokeyname,

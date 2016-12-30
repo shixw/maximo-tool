@@ -319,7 +319,7 @@ public class DBConfigMigration {
 					NULLTOEMPTY(rs.getString(7)), NULLTOEMPTY(rs.getString(8)), NULLTOEMPTY(rs.getString(9)),
 					NULLTOEMPTY(rs.getString(10)), rs.getInt(11), NULLTOEMPTY(rs.getString(12)), rs.getInt(13),
 					rs.getInt(14), rs.getInt(15), rs.getInt(16), NULLTOEMPTY(rs.getString(17)), rs.getInt(18),
-					rs.getInt(19), rs.getInt(20), rs.getInt(21), NULLTOEMPTY(rs.getString(22)),
+					rs.getInt(19), rs.getInt(20), NULLTOEMPTY(rs.getString(21)), NULLTOEMPTY(rs.getString(22)),
 					NULLTOEMPTY(rs.getString(23)), NULLTOEMPTY(rs.getString(24)), rs.getInt(25),
 					NULLTOEMPTY(rs.getString(26)), rs.getInt(27), NULLTOEMPTY(rs.getString(29)), rs.getInt(30),
 					rs.getInt(31), NULLTOEMPTY(rs.getString(32)), rs.getInt(34), rs.getInt(35),

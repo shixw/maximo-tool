@@ -2,6 +2,7 @@ package cn.shuto.maximo.tool;
 
 import java.util.logging.Logger;
 
+import cn.shuto.maximo.tool.migration.app.AppMigration;
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
 import cn.shuto.maximo.tool.migration.domainadm.DomainadmMigration;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
@@ -48,6 +49,14 @@ public class App {
 			if ("importdomainadm".equals(option)) {
 				DomainadmMigration dm = new DomainadmMigration();
 				dm.importDomainadm();
+			}
+			if ("exportapp".equals(option)) {
+				AppMigration am = new AppMigration();
+				am.exportApp(systemEnvironmental.getStringParam("-exportmodules"), systemEnvironmental.getStringParam("-exportapps"));
+			}
+			if ("importapp".equals(option)) {
+				AppMigration am = new AppMigration();
+				am.importApp();
 			}
 		}
 

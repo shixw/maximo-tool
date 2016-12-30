@@ -8,9 +8,11 @@
 	<!-- 导出目录 -->
 	<property name="package.path" value="${basedir}" />
 	<!-- 需要导出的对象 用 "," 分割 -->
-	<property name="exportobjects" value="ST_PI_TASK,ST_PI_TASK_AREA" />
+	<property name="exportobjects" value="ST_PI_POST,ST_PI_USER" />
 	<property name="exportdomainids" value="PI_CYCLE_UNIT,PI_PROFESSIONAL" />
-
+	<property name="exportmodules" value="STPI" />
+	<property name="exportapps" value="PI_POST" />
+	
 	<!-- Maximo的lib jar包 -->
 	<property name="maximo.lib" value="${maximo.path}\lib" />
 	<!-- Maximo的 maximouiweb Bean class 依赖 -->
@@ -153,13 +155,42 @@
 			<arg value="-exportdomainids=${exportdomainids}" />
 		</java>
 	</target>
-	<!-- 从到处的文件中 导入数据库配置 -->
+	<!-- 从导出的文件中 导入数据库配置 -->
 	<target name="importdomainadm" id="importdomainadm">
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importdomainadm" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-importpath=${package.path}" />
+		</java>
+	</target>
+	
+	<!-- 将应用信息导出到导出目录中 -->
+	<target name="exportapp" id="exportapp">
+		<echo message="------------初始化应用导出目录----------" />
+		<delete dir="${basedir}/package/app" />
+		<mkdir dir="${basedir}/package/app" />
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=exportapp" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-packagepath=${basedir}" />
+			<arg value="-exportmodules=${exportmodules}" />
+			<arg value="-exportapps=${exportapps}" />
+		</java>
+	</target>
+	
+	<!-- 从导出的文件中 导入数据库配置 -->
+	<target name="importapp" id="importapp">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=importapp" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>

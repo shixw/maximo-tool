@@ -21,7 +21,7 @@ public class MaxRelationship implements Serializable {
 		this.name = name;
 		this.parent = parent;
 		this.child = child;
-		this.whereclause = whereclause;
+		setWhereclause(whereclause);
 		this.remarks = remarks;
 		this.cardinality = cardinality;
 		this.dbjoinrequired = dbjoinrequired;
@@ -56,7 +56,7 @@ public class MaxRelationship implements Serializable {
 	}
 
 	public void setWhereclause(String whereclause) {
-		this.whereclause = whereclause;
+		this.whereclause = whereclause.replace("'", "''");
 	}
 
 	public String getRemarks() {

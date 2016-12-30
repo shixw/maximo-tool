@@ -166,7 +166,7 @@ public class DBConfigMigration {
 
 		try {
 			for (String object : exportObjects) {
-				list.add(exportObject(object));
+				list.add(exportObject(object.toUpperCase()));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

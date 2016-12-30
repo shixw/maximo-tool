@@ -1,54 +1,141 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="maximo-tool" basedir="." default="importdbconfig">
+<project name="maximo-tool" basedir="." default="copymaximoclass">
 	<!-- 配置属性 -->
-	<property name="maximo-path" value="E:\Projects\shahe\maximo">
-	</property>
-	<property name="maximo-lib" value="${maximo-path}\lib">
-	</property>
+	<!-- Maximo的开发路径，导出时为导出的Maximo  导入时为导入的 Maximo -->
+	<property name="maximo.path" value="E:\Projects\shahe\maximo" />
+	<!-- Maximo 代码的地址 -->
+	<property name="maximo.code" value="F:\Workspace\Eclipse\workspace-maximo\STPI" />
+	<!-- 导出目录 -->
+	<property name="package.path" value="${basedir}" />
+	<!-- 需要导出的对象 用 "," 分割 -->
+	<property name="exportobjects" value="ST_PI_TASK,ST_PI_TASK_AREA" />
 
-	<property name="classes" value="bin">
-	</property>
-	<property name="lib" value="lib">
-	</property>
 
-	<target name="clear">
-		<delete dir="${basedir}/package/dbconfig">
-		</delete>
-	</target>
-	<target name="init" depends="clear">
-		<mkdir dir="${basedir}/package/dbconfig" />
-	</target>
+	<!-- Maximo的lib jar包 -->
+	<property name="maximo.lib" value="${maximo.path}\lib" />
+	<!-- Maximo的 maximouiweb Bean class 依赖 -->
+	<property name="maximo.bean" value="${maximo.path}\maximouiweb\webmodule\WEB-INF\classes" />
+	<!-- Maximo的businessobjects class 依赖 -->
+	<property name="maximo.businessobjects" value="${maximo.path}\businessobjects\classes" />
 
+
+	<!-- Maximo Java 源代码的地址 -->
+	<property name="maximo.code.src" value="${maximo.code}\src" />
+	<!-- Maximo 项目使用的Maximo以外的第三方jar包 -->
+	<property name="maximo.code.thridjar" value="${maximo.code}\lib" />
+
+
+	<!-- Maximo Java代码编译后的目录 -->
+	<!-- 
+	<property name="maximo.code.class" value="${package.path}/package/code/class" />
+	<property name="maximo.code.class" value="${maximo.code}\bin" />
+	-->
+	<property name="maximo.code.classes" value="${package.path}/package/code/classes" />
+	<!-- maximo-tool 项目编译后的路径 -->
+	<property name="classes" value="bin" />
+
+	<!-- ant运行需要的jar包 -->
 	<path id="ant.run.lib.path">
+		<pathelement path="${maximo.businessobjects}" />
+		<pathelement path="${maximo.bean}" />
 		<pathelement path="${classes}" />
-		<fileset dir="${maximo-lib}">
+		<fileset dir="${maximo.lib}">
 			<include name="**/*.jar" />
 		</fileset>
-		<fileset dir="${classes}">
+		<fileset dir="${maximo.code.thridjar}">
 			<include name="**/*.jar" />
 		</fileset>
 	</path>
+	<!-- 编译源代码  -->
+	<target name="buildsourcecode" id="buildsourcecode" description="编译源代码">
+		<echo message="-----------创建编译源代码的目录--------------" />
+		<delete dir="${maximo.code.classes}" />
+		<mkdir dir="${maximo.code.classes}" />
+		<echo message="-----------开始编译源代码--------------" />
+		<javac destdir="${maximo.code.classes}" srcdir="${maximo.code.src}" encoding="utf-8" includeantruntime="false" source="1.6" target="1.6">
+			<compilerarg line="-encoding UTF-8 " />
+			<classpath refid="ant.run.lib.path" />
+		</javac>
+		<echo message="-------编译完成---------" />
+	</target>
+	<!-- 复制 class 需要的配置文件 -->
+	<property name="base.dir.app" value="com\shuto\mam\app" />
+	<property name="base.dir.crontask" value="com\shuto\mam\crontask" />
+	<property name="base.dir.beans" value="com\shuto\mam\webclient\beans" />
 
-	<target name="exportdbconfig" id="exportdbconfig" depends="init">
+	<property name="bin.dir.beans" location="${maximo.code.classes}\${base.dir.beans}" />
+	<property name="bin.dir.app" location="${maximo.code.classes}\${base.dir.app}" />
+	<property name="bin.dir.crontask" location="${maximo.code.classes}\${base.dir.crontask}" />
+
+	<property name="maximo.dir.beans" location="${maximo.path}\maximouiweb\webmodule\WEB-INF\classes\${base.dir.beans}" />
+	<property name="maximo.dir.app" location="${maximo.path}\businessobjects\classes\${base.dir.app}" />
+	<property name="maximo.dir.crontask" location="${maximo.path}\businessobjects\classes\${base.dir.crontask}" />
+
+	<!-- 复制的文件的集合 -->
+
+	<fileset id="bin.dir.app" dir="${bin.dir.app}">
+		<include name="**/*.class" />
+	</fileset>
+
+	<fileset id="bin.path.beans" dir="${bin.dir.beans}">
+		<include name="**/*.class" />
+	</fileset>
+
+	<fileset id="bin.dir.crontask" dir="${bin.dir.crontask}">
+		<include name="**/*.class" />
+	</fileset>
+	<!-- 复制编译好的class代码 到项目中 复制会对比文件法神变化时复制-->
+	<target name="copymaximoclass" id="copymaximoclass">
+		<echo message="----复制编译后的代码到项目中---------------------" />
+		<copy todir="${maximo.dir.app}">
+			<fileset refid="bin.dir.app">
+			</fileset>
+		</copy>
+		<copy todir="${maximo.dir.crontask}">
+			<fileset refid="bin.dir.crontask">
+			</fileset>
+		</copy>
+		<copy todir="${maximo.dir.beans}">
+			<fileset refid="bin.path.beans">
+			</fileset>
+		</copy>
+		<echo message="----复制编译后的代码到项目中-完成--------------------" />
+	</target>
+	<!-- 将数据库配置信息导出到导出目录中 -->
+	<target name="exportdbconfig" id="exportdbconfig">
+		<echo message="------------初始化数据库配置导出目录----------" />
+		<delete dir="${basedir}/package/dbconfig" />
+		<mkdir dir="${basedir}/package/dbconfig" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-exportdbconfig" />
-			<arg value="${maximo-path}" />
+			<arg value="${maximo.path}" />
 			<arg value="${basedir}" />
-			<arg value="ST_PI_TASK,ST_PI_TASK_AREA" />
+			<arg value="${exportobjects}" />
 		</java>
 	</target>
+	<!-- 从到处的文件中 导入数据库配置 -->
 	<target name="importdbconfig" id="importdbconfig">
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-importdbconfig" />
-			<arg value="${importmaximo-path}" />
+			<arg value="${maximo.path}" />
 			<arg value="${basedir}" />
 		</java>
 	</target>
-
+	<!-- 调用maximo系统代码配置数据库 需要停止Maximo服务 -->
+	<target name="configdb" id="configdb" depends="importdbconfig">
+		<java classname="psdi.configure.ConfigDB" classpathref="ant.run.lib.path" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<arg value="-l" />
+			<arg value="-e" />
+			<arg value="-r" />
+			<arg value="-k${maximo.path}\properties" />
+			<arg value="${basedir}" />
+		</java>
+	</target>
 </project>

@@ -2,14 +2,14 @@
 <project name="maximo-tool" basedir="." default="copymaximoclass">
 	<!-- 配置属性 -->
 	<!-- Maximo的开发路径，导出时为导出的Maximo  导入时为导入的 Maximo -->
-	<property name="maximo.path" value="E:\Projects\shahe\maximo" />
+	<property name="maximo.path" value="E:\Projects\maximo-xdj" />
 	<!-- Maximo 代码的地址 -->
 	<property name="maximo.code" value="F:\Workspace\Eclipse\workspace-maximo\STPI" />
 	<!-- 导出目录 -->
 	<property name="package.path" value="${basedir}" />
 	<!-- 需要导出的对象 用 "," 分割 -->
 	<property name="exportobjects" value="ST_PI_TASK,ST_PI_TASK_AREA" />
-
+	<property name="exportdomainids" value="PI_CYCLE_UNIT,PI_PROFESSIONAL" />
 
 	<!-- Maximo的lib jar包 -->
 	<property name="maximo.lib" value="${maximo.path}\lib" />
@@ -116,7 +116,7 @@
 			<arg value="-exportobjects=${exportobjects}" />
 		</java>
 	</target>
-	<!-- 从到处的文件中 导入数据库配置 -->
+	<!-- 从导出的文件中 导入数据库配置 -->
 	<target name="importdbconfig" id="importdbconfig">
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
@@ -124,7 +124,7 @@
 			</classpath>
 			<arg value="-option=importdbconfig" />
 			<arg value="-maximopath=${maximo.path}" />
-			<arg value="-importpath=${basedir}" />
+			<arg value="-importpath=${package.path}" />
 		</java>
 	</target>
 	<!-- 调用maximo系统代码配置数据库 需要停止Maximo服务 -->
@@ -136,6 +136,32 @@
 			<arg value="-r" />
 			<arg value="-k${maximo.path}\properties" />
 			<arg value="${basedir}" />
+		</java>
+	</target>
+	<!-- 将数据库配置信息导出到导出目录中 -->
+	<target name="exportdomaindm" id="exportdomaindm">
+		<echo message="------------初始化域导出目录----------" />
+		<delete dir="${basedir}/package/domainadm" />
+		<mkdir dir="${basedir}/package/domainadm" />
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=exportdomainadm" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-packagepath=${basedir}" />
+			<arg value="-exportdomainids=${exportdomainids}" />
+		</java>
+	</target>
+	<!-- 从到处的文件中 导入数据库配置 -->
+	<target name="importdomainadm" id="importdomainadm">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=importdomainadm" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-importpath=${package.path}" />
 		</java>
 	</target>
 </project>

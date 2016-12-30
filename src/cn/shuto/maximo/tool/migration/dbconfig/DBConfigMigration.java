@@ -142,6 +142,8 @@ public class DBConfigMigration {
 				e1.printStackTrace();
 			}
 			e.printStackTrace();
+		}finally {
+			closeResource();
 		}
 	}
 

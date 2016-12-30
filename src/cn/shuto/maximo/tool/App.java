@@ -3,6 +3,7 @@ package cn.shuto.maximo.tool;
 import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
+import cn.shuto.maximo.tool.migration.domainadm.DomainadmMigration;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
 import cn.shuto.maximo.tool.util.DBUtil;
 
@@ -39,6 +40,14 @@ public class App {
 			if ("importdbconfig".equals(option)) {
 				DBConfigMigration dbcm = new DBConfigMigration();
 				dbcm.importDBConfig();
+			}
+			if("exportdomainadm".equals(option)){
+				DomainadmMigration dm = new DomainadmMigration();
+				dm.exportDomainadm(systemEnvironmental.getStringParam("-exportdomainids"));
+			}
+			if ("importdomainadm".equals(option)) {
+				DomainadmMigration dm = new DomainadmMigration();
+				dm.importDomainadm();
 			}
 		}
 

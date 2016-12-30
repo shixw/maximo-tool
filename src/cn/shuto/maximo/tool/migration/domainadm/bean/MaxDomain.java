@@ -1,6 +1,7 @@
 package cn.shuto.maximo.tool.migration.domainadm.bean;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class MaxDomain implements Serializable {
 
@@ -13,6 +14,19 @@ public class MaxDomain implements Serializable {
 	private int scale;
 	private String maxdomainid = "maxdomainseq.nextval";
 	private int internal;
+
+	//关联的表
+	private List<ALNDomain> alnDomains;
+	
+	
+	
+	public List<ALNDomain> getAlnDomains() {
+		return alnDomains;
+	}
+
+	public void setAlnDomains(List<ALNDomain> alnDomains) {
+		this.alnDomains = alnDomains;
+	}
 
 	public MaxDomain(String domainid, String description, String domaintype, String maxtype, int length, int scale,
 			int internal) {

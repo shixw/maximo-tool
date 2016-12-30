@@ -2,7 +2,7 @@
 <project name="maximo-tool" basedir="." default="copymaximoclass">
 	<!-- 配置属性 -->
 	<!-- Maximo的开发路径，导出时为导出的Maximo  导入时为导入的 Maximo -->
-	<property name="maximo.path" value="E:\Projects\maximo-xdj" />
+	<property name="maximo.path" value="E:\Projects\shahe\maximo" />
 	<!-- Maximo 代码的地址 -->
 	<property name="maximo.code" value="F:\Workspace\Eclipse\workspace-maximo\STPI" />
 	<!-- 导出目录 -->

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import cn.shuto.maximo.tool.migration.domainadm.bean.ALNDomain;
 import cn.shuto.maximo.tool.migration.domainadm.bean.MaxDomain;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
 import cn.shuto.maximo.tool.util.CommonUtil;
@@ -23,8 +24,10 @@ public class DomainadmMigration {
 	private Connection conn = null;
 
 	private static final String SELECTMAXDOMAIN = "select DOMAINID, DESCRIPTION, DOMAINTYPE, MAXTYPE, LENGTH, SCALE, MAXDOMAINID, INTERNAL from MAXDOMAIN WHERE DOMAINID = ?";
+	private static final String SELECTALNDOMAIN = "select DOMAINID, VALUE, DESCRIPTION, SITEID, ORGID, ALNDOMAINID, VALUEID from ALNDOMAIN where domainid  = ?";
 
 	PreparedStatement maxdomainST = null;
+	PreparedStatement alndomainST = null;
 
 	Statement insertSt = null;
 
@@ -34,6 +37,7 @@ public class DomainadmMigration {
 		if (conn != null) {
 			try {
 				maxdomainST = conn.prepareStatement(SELECTMAXDOMAIN);
+				alndomainST = conn.prepareStatement(SELECTALNDOMAIN);
 
 				insertSt = conn.createStatement();
 			} catch (SQLException e) {
@@ -50,15 +54,28 @@ public class DomainadmMigration {
 			List<MaxDomain> list = SerializeUtil.readObjectForList(
 					new File(SystemEnvironmental.getInstance().getStringParam("-importpath") + DOMAINADMFILEPATH));
 			for (MaxDomain maxDomain : list) {
+				_log.info("---导入表MaxDomain--数据 ："+maxDomain.toInsertSql());
 				insertSt.addBatch(maxDomain.toInsertSql());
+				String domaintype = maxDomain.getDomaintype();
+				//如果为字母数字域  导入 ALNDomain 表
+				if ("字母数字".equals(domaintype)) {
+					_log.info("---域为字母数字域，导入表 --alndomain-- ");
+					List<ALNDomain> alnDomains = maxDomain.getAlnDomains();
+					if(alnDomains!=null&&alnDomains.size()>0){
+						for (ALNDomain alnDomain : alnDomains) {
+							_log.info("---导入表alnDomain--数据 ："+alnDomain.toInsertSql());
+							insertSt.addBatch(alnDomain.toInsertSql());
+						}
+					}
+				}
 			}
-			
+
 			insertSt.executeBatch();
-			//提交事务
+			// 提交事务
 			conn.commit();
 		} catch (SQLException e) {
 			try {
-				//回滚
+				// 回滚
 				conn.rollback();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
@@ -73,7 +90,7 @@ public class DomainadmMigration {
 		_log.info("---------- 需要导出的域为:" + exportObjects);
 		// 需要导出的对象数组
 		exportDomainadm(CommonUtil.buildExportObjects(exportObjects));
-		
+
 	}
 
 	/**
@@ -111,12 +128,40 @@ public class DomainadmMigration {
 		// 导出maxdomain表
 		MaxDomain maxDomain = exportMaxDomainToJavaBean(domainid);
 		String domaintype = maxDomain.getDomaintype();
-		if("字母数字".equals(domaintype)){
-			
+		//如果为字母数字域  导出  ALNDomain 表
+		if ("字母数字".equals(domaintype)) {
+			_log.info("--域为字母数字域---导出表 ALNDomain-----");
+			maxDomain.setAlnDomains(exportALNDomainToJavaBean(domainid));
 		}
 		return maxDomain;
 	}
 
+	/**
+	 * 导出 字母数字域 对应的 ALNDomain 表的数据 
+	 * @param domainid
+	 * @return
+	 * @throws SQLException
+	 */
+	private List<ALNDomain> exportALNDomainToJavaBean(String domainid) throws SQLException {
+		List<ALNDomain> list = new ArrayList<ALNDomain>();
+		alndomainST.setString(1, domainid);
+		ResultSet rs = alndomainST.executeQuery();
+		while (rs.next()) {
+			list.add(new ALNDomain(CommonUtil.NULLTOEMPTY(rs.getString(1)), CommonUtil.NULLTOEMPTY(rs.getString(2)),
+					CommonUtil.NULLTOEMPTY(rs.getString(3)), CommonUtil.NULLTOEMPTY(rs.getString(4)),
+					CommonUtil.NULLTOEMPTY(rs.getString(5)), CommonUtil.NULLTOEMPTY(rs.getString(7))));
+		}
+		rs.close();
+		return list;
+	}
+
+	/**
+	 * 导出maxdomain表为JavaBean
+	 * 
+	 * @param domainid
+	 * @return
+	 * @throws SQLException
+	 */
 	private MaxDomain exportMaxDomainToJavaBean(String domainid) throws SQLException {
 		maxdomainST.setString(1, domainid);
 		ResultSet rs = maxdomainST.executeQuery();
@@ -136,7 +181,8 @@ public class DomainadmMigration {
 		try {
 			if (maxdomainST != null)
 				maxdomainST.close();
-
+			if (alndomainST != null)
+				alndomainST.close();
 			if (insertSt != null)
 				insertSt.close();
 		} catch (SQLException e) {

@@ -91,7 +91,7 @@ public class Autokey implements Serializable {
 		this.autokeyid = autokeyid;
 	}
 
-	private static final String INSERTAUTOKEY = "insert into autokey ( PREFIX, SEED, ORGID, SITEID, AUTOKEYNAME, SETID, LANGCODE, AUTOKEYID) values ( '%s', %s, '%s', '%s', '%s', '%s', '%s', %s);";
+	private static final String INSERTAUTOKEY = "insert into autokey ( PREFIX, SEED, ORGID, SITEID, AUTOKEYNAME, SETID, LANGCODE, AUTOKEYID) values ( '%s', %s, '%s', '%s', '%s', '%s', '%s', %s)";
 
 	public String toInsertSql() {
 		return String.format(INSERTAUTOKEY, this.prefix, this.seed, this.orgid, this.siteid, this.autokeyname,

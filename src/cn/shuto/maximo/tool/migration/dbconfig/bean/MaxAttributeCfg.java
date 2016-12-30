@@ -399,7 +399,7 @@ public class MaxAttributeCfg implements Serializable {
 		this.complexexpression = complexexpression;
 	}
 
-	private static final String INSERTMAXATTRIBUTECFG = "insert into maxattributecfg ( OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION) values ( '%s', '%s', '%s', '%s', %s, %s, '%s', '%s', '%s', '%s', %s, '%s', %s, %s, %s, %s, '%s', %s, %s, %s, %s, '%s', '%s', '%s', %s, '%s', %s,'%s', '%s', %s, %s, '%s', %s, %s, %s, '%s', '%s');";
+	private static final String INSERTMAXATTRIBUTECFG = "insert into maxattributecfg ( OBJECTNAME, ATTRIBUTENAME, ALIAS, AUTOKEYNAME, ATTRIBUTENO, CANAUTONUM, CLASSNAME, COLUMNNAME, DEFAULTVALUE, DOMAINID, EAUDITENABLED, ENTITYNAME, ESIGENABLED, ISLDOWNER, ISPOSITIVE, LENGTH, MAXTYPE, MUSTBE, REQUIRED, PERSISTENT, PRIMARYKEYCOLSEQ, REMARKS, SAMEASATTRIBUTE, SAMEASOBJECT, SCALE, TITLE, USERDEFINED, CHANGED, SEARCHTYPE, MLSUPPORTED, MLINUSE, HANDLECOLUMNNAME, MAXATTRIBUTEID, RESTRICTED, LOCALIZABLE, TEXTDIRECTION, COMPLEXEXPRESSION) values ( '%s', '%s', '%s', '%s', %s, %s, '%s', '%s', '%s', '%s', %s, '%s', %s, %s, %s, %s, '%s', %s, %s, %s, %s, '%s', '%s', '%s', %s, '%s', %s,'%s', '%s', %s, %s, '%s', %s, %s, %s, '%s', '%s')";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXATTRIBUTECFG, this.objectname, this.attributename, this.alias, this.autokeyname,

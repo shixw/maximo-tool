@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="maximo-tool" basedir="." default="importdbconfig">
 	<!-- 配置属性 -->
-	<property name="maximo-path" value="E:\Projects\maximo-xdj">
+	<property name="maximo-path" value="E:\Projects\shahe\maximo">
 	</property>
 	<property name="maximo-lib" value="${maximo-path}\lib">
 	</property>
@@ -46,7 +46,7 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-importdbconfig" />
-			<arg value="${maximo-path}" />
+			<arg value="${importmaximo-path}" />
 			<arg value="${basedir}" />
 		</java>
 	</target>

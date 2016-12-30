@@ -20,6 +20,10 @@ public class DBUtil {
 			_log.info("-----------打开新的数据库连接---------------");
 			Properties config = PropertyReader.getProperties(maximoPath + "\\properties\\maximo.properties");
 			Class.forName(config.getProperty("mxe.db.driver"));
+			_log.info("--连接如下数据库--");
+			_log.info("--mxe.db.url="+config.getProperty("mxe.db.url"));
+			_log.info("--mxe.db.user="+config.getProperty("mxe.db.user"));
+			_log.info("--mxe.db.password="+config.getProperty("mxe.db.password"));
 			conn = DriverManager.getConnection(config.getProperty("mxe.db.url"),
 					config.getProperty("mxe.db.user"), config.getProperty("mxe.db.password"));
 			conn.setAutoCommit(false);

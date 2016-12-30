@@ -115,7 +115,7 @@ public class MaxSysIndexes implements Serializable {
 		this.maxsysindexesid = maxsysindexesid;
 	}
 
-	private static final String INSERTMAXSYSINDEXES = "insert into maxsysindexes ( NAME, TBNAME, UNIQUERULE, CHANGED, CLUSTERRULE, STORAGEPARTITION, REQUIRED, TEXTSEARCH, MAXSYSINDEXESID) values ( '%s', '%s', '%s','%s', %s, '%s', %s, %s, %s);";
+	private static final String INSERTMAXSYSINDEXES = "insert into maxsysindexes ( NAME, TBNAME, UNIQUERULE, CHANGED, CLUSTERRULE, STORAGEPARTITION, REQUIRED, TEXTSEARCH, MAXSYSINDEXESID) values ( '%s', '%s', '%s','%s', %s, '%s', %s, %s, %s)";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXSYSINDEXES, this.name, this.tbname, this.uniquerule, this.changed,

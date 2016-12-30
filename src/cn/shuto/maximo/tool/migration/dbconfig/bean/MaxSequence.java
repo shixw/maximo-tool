@@ -80,7 +80,7 @@ public class MaxSequence implements Serializable {
 		this.maxsequenceid = maxsequenceid;
 	}
 
-	private static final String INSERTMAXSEQUENCE = "insert into maxsequence ( TBNAME, NAME, MAXRESERVED, MAXVALUE, RANGE, SEQUENCENAME, MAXSEQUENCEID) values ( '%s', '%s', %s, %s, %s, '%s', %s);";
+	private static final String INSERTMAXSEQUENCE = "insert into maxsequence ( TBNAME, NAME, MAXRESERVED, MAXVALUE, RANGE, SEQUENCENAME, MAXSEQUENCEID) values ( '%s', '%s', %s, %s, %s, '%s', %s)";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXSEQUENCE, this.tbname, this.name, this.maxreserved, this.maxvalue, this.range,

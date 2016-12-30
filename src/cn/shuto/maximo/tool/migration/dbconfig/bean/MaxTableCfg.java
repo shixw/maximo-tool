@@ -164,7 +164,7 @@ public class MaxTableCfg implements Serializable {
 		this.contentattribute = contentattribute;
 	}
 
-	private static final String INSERTMAXTABLECFG = "insert into maxtablecfg ( TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE) values ( '%S', %S, '%S', %S, %S, '%S', %S, '%S', '%S', '%S', %S, %S, '%S', '%S', '%S');";
+	private static final String INSERTMAXTABLECFG = "insert into maxtablecfg ( TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE) values ( '%S', %S, '%S', %S, %S, '%S', %S, '%S', '%S', '%S', %S, %S, '%S', '%S', '%S')";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXTABLECFG, this.tablename, this.addrowstamp, this.eaudittbname, this.isaudittable,

@@ -91,7 +91,7 @@ public class MaxRelationship implements Serializable {
 		this.dbjoinrequired = dbjoinrequired;
 	}
 
-	private static final String INSERTMAXRELATIONSHIP = "insert into maxrelationship ( NAME, PARENT, CHILD, WHERECLAUSE, REMARKS, MAXRELATIONSHIPID, CARDINALITY, DBJOINREQUIRED) values ( '%s', '%s', '%s', '%s', '%s', %s, '%s', %s);";
+	private static final String INSERTMAXRELATIONSHIP = "insert into maxrelationship ( NAME, PARENT, CHILD, WHERECLAUSE, REMARKS, MAXRELATIONSHIPID, CARDINALITY, DBJOINREQUIRED) values ( '%s', '%s', '%s', '%s', '%s', %s, '%s', %s)";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXRELATIONSHIP, this.name, this.parent, this.child, this.whereclause, this.remarks,

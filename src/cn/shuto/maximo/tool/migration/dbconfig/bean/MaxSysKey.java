@@ -69,7 +69,7 @@ public class MaxSysKey implements Serializable {
 		this.maxsyskeysid = maxsyskeysid;
 	}
 
-	private static final String INSERTMAXSYSKEYES = "insert into maxsyskeys ( IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID) values ( '%s', '%s', %s, '%s','%s', %s);";
+	private static final String INSERTMAXSYSKEYES = "insert into maxsyskeys ( IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID) values ( '%s', '%s', %s, '%s','%s', %s)";
 
 	public String toInsertSql() {
 		return String.format(INSERTMAXSYSKEYES, this.ixname, this.colname, this.colseq, this.ordering, this.changed,

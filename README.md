@@ -22,6 +22,7 @@
 2. 将导出的归档文件导入到指定的系统中包括导入系统的XML。
 
 导出模块同时导出模块对应的二级菜单,导入的时候首先删除原先的菜单 然后再导入
+导出 系统 XML中增加的内容  
 
 ## 参数说明
 - **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置) ; 3. exportdomainadm(导出域配置) ; 4. importdomainadm (导入域配置) ; 5. exportapp (导出应用) ; 6. importapp (导入应用信息)

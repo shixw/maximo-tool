@@ -156,7 +156,7 @@ public class AppMigration {
 	 * @throws IOException
 	 */
 	private void insertXMLToMaxPresentation(MaxApps app) throws SQLException, IOException {
-		_log.info("--------------将导出的XML导入到MaxPresentation表中------------------");
+		_log.info("--------------将应用程序-"+app.getDescription()+"----对应的XML导入到MaxPresentation表中------------------");
 		// 写入操作
 		String updatePresentationSql = "SELECT presentation from maxpresentation where app = ? for update";
 		PreparedStatement pstmt = conn.prepareStatement(updatePresentationSql);
@@ -169,6 +169,7 @@ public class AppMigration {
 			writer.write(app.getMaxPresentation().getPresentation());
 			writer.close();
 		}
+		rs.close();
 		pstmt.close();
 
 	}

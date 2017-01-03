@@ -192,8 +192,8 @@ public class AppMigration {
 			importST.addBatch(String.format(DELETEMAXMENU, app.getApp(), app.getApp()));
 			importST.addBatch(String.format(DELETESIGOPTION, app.getApp()));
 
-			importST.executeBatch();
-			conn.commit();
+//			importST.executeBatch();
+//			conn.commit();
 		} catch (SQLException e) {
 			try {
 				conn.rollback();

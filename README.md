@@ -6,7 +6,7 @@
 - **数据库配置** ：导入导出数据库配置相关内容；
 - **域迁移** ： 导出域相关的配置
 - **应用程序设计器** ：导入导出应用程序设计器相关内容；
-- **代码编译复制** ：将源代码编译后复制到项目相应目录中
+- **消息** ：导入导出消息相关内容；
 
 ### 数据库配置
 主要功能有两个：
@@ -25,7 +25,7 @@
 导出 系统 XML中增加的内容  
 
 ## 参数说明
-- **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置) ; 3. exportdomainadm(导出域配置) ; 4. importdomainadm (导入域配置) ; 5. exportapp (导出应用) ; 6. importapp (导入应用信息)
+- **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置) ; 3. exportdomainadm(导出域配置) ; 4. importdomainadm (导入域配置) ; 5. exportapp (导出应用) ; 6. importapp (导入应用信息) ; 7. importmaxmessages (导入消息) ; 8. exportmaxmessages(导出消息)
 - **-maximopath**：maximo的发布包的路径
 - **-packagepath**：数据导出的路径
 - **-importpath**：数据导入的路径
@@ -33,5 +33,6 @@
 - **-exportobjects**：需要导出的对象,用","分割
 - **-exportmodules**：需要导出的模块的ID,用","分割
 - **-exportapps**：需要导出的app,用","分割
+- **-exportapps**：需要导出的消息的信息 使用字段 msgid 用 , 隔开
 
 ## Ant脚本参数说明

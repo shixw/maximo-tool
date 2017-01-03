@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import cn.shuto.maximo.tool.migration.app.AppMigration;
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
 import cn.shuto.maximo.tool.migration.domainadm.DomainadmMigration;
+import cn.shuto.maximo.tool.migration.maxmessages.MaxMessagesMigration;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
 import cn.shuto.maximo.tool.util.DBUtil;
 
@@ -57,6 +58,14 @@ public class App {
 			if ("importapp".equals(option)) {
 				AppMigration am = new AppMigration();
 				am.importApp();
+			}
+			if ("exportmaxmessages".equals(option)) {
+				MaxMessagesMigration mmm = new MaxMessagesMigration();
+				mmm.exportMaxMessages(systemEnvironmental.getStringParam("-exportmaxmessages"));
+			}
+			if ("importmaxmessages".equals(option)) {
+				MaxMessagesMigration mmm = new MaxMessagesMigration();
+				mmm.importMaxMessages();
 			}
 		}
 

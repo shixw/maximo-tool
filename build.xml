@@ -16,9 +16,9 @@
 		</fileset>
 	</path>
 	<!-- Maximo系统导出的统一任务配置 -->
-	<target name="maximoexport" id="maximoexport" depends="exportdbconfig,exportdomaindm,exportapp,buildsourcecode" />
+	<target name="maximoexport" id="maximoexport" depends="exportdbconfig,exportdomaindm,exportapp,exportmaxmessages,buildsourcecode" />
 	<!-- Maximo系统导入的统一任务配置 -->
-	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importdomainadm,importapp" />
+	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importmaxmessages,importdomainadm,importapp" />
 
 	<!-- 编译源代码  -->
 	<target name="buildsourcecode" id="buildsourcecode" description="编译源代码">
@@ -63,7 +63,7 @@
 			</classpath>
 			<arg value="-option=exportdbconfig" />
 			<arg value="-maximopath=${maximo.path}" />
-			<arg value="-packagepath=${basedir}" />
+			<arg value="-packagepath=${package.path}" />
 			<arg value="-exportobjects=${exportobjects}" />
 		</java>
 	</target>
@@ -86,7 +86,7 @@
 			<arg value="-e" />
 			<arg value="-r" />
 			<arg value="-k${maximo.path}\properties" />
-			<arg value="${basedir}" />
+			<arg value="${package.path}" />
 		</java>
 	</target>
 	<!-- 将数据库配置信息导出到导出目录中 -->
@@ -100,7 +100,7 @@
 			</classpath>
 			<arg value="-option=exportdomainadm" />
 			<arg value="-maximopath=${maximo.path}" />
-			<arg value="-packagepath=${basedir}" />
+			<arg value="-packagepath=${package.path}" />
 			<arg value="-exportdomainids=${exportdomainids}" />
 		</java>
 	</target>
@@ -127,7 +127,7 @@
 			</classpath>
 			<arg value="-option=exportapp" />
 			<arg value="-maximopath=${maximo.path}" />
-			<arg value="-packagepath=${basedir}" />
+			<arg value="-packagepath=${package.path}" />
 			<arg value="-exportmodules=${exportmodules}" />
 			<arg value="-exportapps=${exportapps}" />
 		</java>
@@ -140,6 +140,33 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importapp" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-importpath=${package.path}" />
+		</java>
+	</target>
+	
+	<!-- 将消息导出到导出目录中 -->
+	<target name="exportmaxmessages" id="exportmaxmessages">
+		<echo message="------------初始化消息导出目录----------" />
+		<delete dir="${basedir}/package/maxmessages" />
+		<mkdir dir="${basedir}/package/maxmessages" />
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=exportmaxmessages" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-packagepath=${package.path}" />
+			<arg value="-exportmaxmessages=${exportmaxmessages}" />
+		</java>
+	</target>
+	<!-- 从导出的文件中 导入消息 -->
+	<target name="importmaxmessages" id="importmaxmessages">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=importmaxmessages" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>

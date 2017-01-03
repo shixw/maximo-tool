@@ -6,6 +6,7 @@ import cn.shuto.maximo.tool.migration.app.AppMigration;
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
 import cn.shuto.maximo.tool.migration.domainadm.DomainadmMigration;
 import cn.shuto.maximo.tool.migration.maxmessages.MaxMessagesMigration;
+import cn.shuto.maximo.tool.migration.systemxml.SystemXMLMigration;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
 import cn.shuto.maximo.tool.util.DBUtil;
 
@@ -66,6 +67,14 @@ public class App {
 			if ("importmaxmessages".equals(option)) {
 				MaxMessagesMigration mmm = new MaxMessagesMigration();
 				mmm.importMaxMessages();
+			}
+			if ("exportlookups".equals(option)) {
+				SystemXMLMigration sxmlm = new SystemXMLMigration();
+				sxmlm.exportLookups(systemEnvironmental.getStringParam("-exportlookupsids"));
+			}
+			if ("importlookups".equals(option)) {
+				SystemXMLMigration sxmlm = new SystemXMLMigration();
+				sxmlm.importLookups();
 			}
 		}
 

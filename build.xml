@@ -171,4 +171,32 @@
 			<arg value="-importpath=${package.path}" />
 		</java>
 	</target>
+	
+	<!-- 将系统XML中的lookups.xml到导出目录中 -->
+	<target name="exportlookups" id="exportlookups">
+		<echo message="------------初始化消息导出目录----------" />
+		<delete dir="${basedir}/package/systemxml" />
+		<mkdir dir="${basedir}/package/systemxml" />
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=exportlookups" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-packagepath=${package.path}" />
+			<arg value="-exportlookupsids=${exportlookupsids}" />
+		</java>
+	</target>
+	
+	<!-- 从导出的文件中 导入消息 -->
+	<target name="importlookups" id="importlookups">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=importlookups" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-importpath=${package.path}" />
+		</java>
+	</target>
 </project>

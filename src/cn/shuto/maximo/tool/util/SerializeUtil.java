@@ -30,7 +30,47 @@ public class SerializeUtil {
 		}
         return false;
     }
-
+    /**
+     * 序列化一个对象
+     * @param t
+     * @param file
+     * @return
+     */
+    @SuppressWarnings({ "resource" })
+    public static <T> boolean writeObject(T t,File file)
+    {
+        try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
+			out.writeObject(t);
+			out.flush();
+			return true;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        return false;
+    }
+    /**
+     * 反序列化,object
+     */
+    @SuppressWarnings({ "resource", "unchecked" })
+	public static <E> E readObject(File file)
+    {
+        E object;
+        try {
+			ObjectInputStream out = new ObjectInputStream(new FileInputStream(file));
+			object = (E) out.readObject();
+			return object;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+        return null;
+    }
     /**
      * 反序列化,List
      */

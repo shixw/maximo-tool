@@ -25,7 +25,7 @@
 导出 系统 XML中增加的内容  
 
 ## 参数说明
-- **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置) ; 3. exportdomainadm(导出域配置) ; 4. importdomainadm (导入域配置) ; 5. exportapp (导出应用) ; 6. importapp (导入应用信息) ; 7. importmaxmessages (导入消息) ; 8. exportmaxmessages(导出消息)
+- **-option**：需要执行什么操作，包括： 1. exportdbconfig (导出数据库配置) ; 2. importdbconfig (导入数据库配置) ; 3. exportdomainadm(导出域配置) ; 4. importdomainadm (导入域配置) ; 5. exportapp (导出应用) ; 6. importapp (导入应用信息) ; 7. importmaxmessages (导入消息) ; 8. exportmaxmessages(导出消息) ; 9. exportlookups (导出系统XML中的lookups.xml) ; 10.importlookups (导入系统XML中的lookups.xml)
 - **-maximopath**：maximo的发布包的路径
 - **-packagepath**：数据导出的路径
 - **-importpath**：数据导入的路径
@@ -34,5 +34,6 @@
 - **-exportmodules**：需要导出的模块的ID,用","分割
 - **-exportapps**：需要导出的app,用","分割
 - **-exportapps**：需要导出的消息的信息 使用字段 msgid 用 , 隔开
+- **-exportlookupsids**：需要导出的系统XML中的lookups.xml中的 table 使用 ID  用 , 隔开
 
 ## Ant脚本参数说明

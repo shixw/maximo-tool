@@ -16,9 +16,9 @@
 		</fileset>
 	</path>
 	<!-- Maximo系统导出的统一任务配置 -->
-	<target name="maximoexport" id="maximoexport" depends="exportdbconfig,exportdomaindm,exportapp,exportmaxmessages,buildsourcecode" />
+	<target name="maximoexport" id="maximoexport" depends="exportdbconfig,exportdomaindm,exportapp,exportlookups,exportmaxmessages,buildsourcecode" />
 	<!-- Maximo系统导入的统一任务配置 -->
-	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importmaxmessages,importdomainadm,importapp" />
+	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importmaxmessages,importdomainadm,importapp,importlookups" />
 
 	<!-- 编译源代码  -->
 	<target name="buildsourcecode" id="buildsourcecode" description="编译源代码">
@@ -144,7 +144,7 @@
 			<arg value="-importpath=${package.path}" />
 		</java>
 	</target>
-	
+
 	<!-- 将消息导出到导出目录中 -->
 	<target name="exportmaxmessages" id="exportmaxmessages">
 		<echo message="------------初始化消息导出目录----------" />
@@ -171,11 +171,18 @@
 			<arg value="-importpath=${package.path}" />
 		</java>
 	</target>
-	
+	<!-- 将导出的文件打包为 zip 压缩文件 -->
+	<target name="buildpackage2zip" id="buildpackage2zip">
+		<echo message="-----将导出数据打包为 .zip 压缩文件-------------" />
+		<zip destfile="${basedir}/${project.name}_${project.version}.zip" duplicate="preserve">
+			<zipfileset dir="${basedir}/package" includes="**/*.*" prefix="${project.name}_${project.version}/package" />
+			<zipfileset dir="${basedir}" includes="**/build.*" prefix="${project.name}_${project.version}/tool" />
+		</zip>
+	</target>
 	<!-- 将系统XML中的lookups.xml到导出目录中 -->
 	<target name="exportlookups" id="exportlookups">
-		<echo message="------------初始化消息导出目录----------" />
-		<delete dir="${basedir}/package/systemxml" />
+		<echo message="------------初始化系统XML导出目录----------" />
+		<delete file="${basedir}/package/systemxml/lookups.mtep" />
 		<mkdir dir="${basedir}/package/systemxml" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
@@ -187,7 +194,7 @@
 			<arg value="-exportlookupsids=${exportlookupsids}" />
 		</java>
 	</target>
-	
+
 	<!-- 从导出的文件中 导入消息 -->
 	<target name="importlookups" id="importlookups">
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">

@@ -1,7 +1,9 @@
 package cn.shuto.maximo.tool;
 
+import java.awt.GraphicsEnvironment;
 import java.util.logging.Logger;
 
+import cn.shuto.maximo.tool.UI.MaximoToolUI;
 import cn.shuto.maximo.tool.migration.app.AppMigration;
 import cn.shuto.maximo.tool.migration.dbconfig.DBConfigMigration;
 import cn.shuto.maximo.tool.migration.domainadm.DomainadmMigration;
@@ -33,9 +35,13 @@ public class App {
 			String[] paramArray = argv[i].split("=");
 			systemEnvironmental.putParam(paramArray[0], paramArray[1]);
 		}
-		//获取操作
+		// 获取操作
 		String option = systemEnvironmental.getStringParam("-option");
 		if (option != null && !"".equals(option)) {
+			if ("loadui".equals(option)) {
+				new MaximoToolUI(GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice()
+						.getDefaultConfiguration());
+			}
 			if ("exportdbconfig".equals(option)) {
 				DBConfigMigration dbcm = new DBConfigMigration();
 				dbcm.exportDBConfig(systemEnvironmental.getStringParam("-exportobjects"));
@@ -44,7 +50,7 @@ public class App {
 				DBConfigMigration dbcm = new DBConfigMigration();
 				dbcm.importDBConfig();
 			}
-			if("exportdomainadm".equals(option)){
+			if ("exportdomainadm".equals(option)) {
 				DomainadmMigration dm = new DomainadmMigration();
 				dm.exportDomainadm(systemEnvironmental.getStringParam("-exportdomainids"));
 			}
@@ -54,7 +60,8 @@ public class App {
 			}
 			if ("exportapp".equals(option)) {
 				AppMigration am = new AppMigration();
-				am.exportApp(systemEnvironmental.getStringParam("-exportmodules"), systemEnvironmental.getStringParam("-exportapps"));
+				am.exportApp(systemEnvironmental.getStringParam("-exportmodules"),
+						systemEnvironmental.getStringParam("-exportapps"));
 			}
 			if ("importapp".equals(option)) {
 				AppMigration am = new AppMigration();

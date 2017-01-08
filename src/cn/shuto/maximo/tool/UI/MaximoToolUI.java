@@ -1,68 +1,47 @@
 package cn.shuto.maximo.tool.UI;
 
-import java.awt.BasicStroke;
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
-import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.awt.Stroke;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ContainerEvent;
-import java.awt.event.ContainerListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.Vector;
+import java.lang.reflect.Constructor;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
-import javax.swing.SingleSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.AbstractBorder;
-import javax.swing.border.EtchedBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.jb2011.lnf.beautyeye.BeautyEyeLNFHelper;
 import org.jb2011.lnf.beautyeye.widget.N9ComponentFactory;
 
 import cn.shuto.maximo.tool.UI.action.AboutAction;
 import cn.shuto.maximo.tool.UI.action.ExitAction;
+import cn.shuto.maximo.tool.UI.action.NavigationAction;
+import cn.shuto.maximo.tool.UI.border.DottedLinePanelBorder;
+import cn.shuto.maximo.tool.UI.panel.MaximoToolModule;
+import cn.shuto.maximo.tool.UI.panel.SystemConfig;
+import cn.shuto.maximo.tool.UI.panel.ToolBarPanel;
+import cn.shuto.maximo.tool.UI.toolbar.ToggleButtonToolBar;
 import cn.shuto.maximo.tool.system.SystemEnvironmental;
 
+/**
+ * Maximo迁移工具界面主入口
+ * @author shixw
+ *
+ */
 public class MaximoToolUI extends JPanel {
 	private static final long serialVersionUID = 1L;
 
@@ -83,8 +62,14 @@ public class MaximoToolUI extends JPanel {
 	/** 主面板. */
 	JPanel mainPanel = null;
 
+	/** 状态栏. */
+	private JLabel statusField = null;
+
+	private ButtonGroup toolbarGroup = new ButtonGroup();
+
+	private static final String panelClassPackage = "cn.shuto.maximo.tool.UI.panel";
 	/** The demos. */
-	String[] topNavigation = { "系统配置信息", "数据库配置", "应用程序" };
+	String[] topNavigation = { "DBConfig","Application" };
 
 	/**
 	 * 构造器函数,
@@ -103,14 +88,18 @@ public class MaximoToolUI extends JPanel {
 		// 初始化Maximo工具界面
 		initializeMaximoToolUI();
 
+		preloadFirstMaximoToolPanel();
+
 		// 在独立线程中打开界面
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				showMaximoToolUI();
 			}
 		});
+		// 加载导航栏菜单
+		TopNavigationLoadThread topNavigationLoad = new TopNavigationLoadThread(this);
+		topNavigationLoad.start();
 
-		loadTopNavigation();
 	}
 
 	/**
@@ -128,10 +117,58 @@ public class MaximoToolUI extends JPanel {
 	 * @param classname
 	 *            the classname
 	 */
-	void loadTopNavigation(final String navigationName) {
-		SwingUtilities.invokeLater(new SwingSetRunnable(this, null) {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	void loadTopNavigation(String navigationClassName) {
+		setStatus(systemEnvironmental.getResource2String("Status.loading")
+				+ systemEnvironmental.getResource2String(navigationClassName + ".name"));
+		MaximoToolModule module = null;
+		try {
+			Class mtmClass = Class.forName(panelClassPackage+"."+navigationClassName);
+			Constructor mtmConstructor = mtmClass.getConstructor(new Class[] { MaximoToolUI.class });
+
+			module = (MaximoToolModule) mtmConstructor.newInstance(new Object[] { this });
+			addMaximoToolModule(module);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.out.println("Error occurred loading panel: " + navigationClassName);
+		}
+	}
+
+	public void preloadFirstMaximoToolPanel() {
+		MaximoToolModule module = addMaximoToolModule(new SystemConfig(this));
+		setMaximoToolModule(module);
+	}
+
+	/**
+	 * Sets the current demo.
+	 *
+	 * @param demo
+	 *            the new demo
+	 */
+	public void setMaximoToolModule(MaximoToolModule module) {
+		// currentDemo = demo;
+
+		// Ensure panel's UI is current before making visible
+		JComponent currentMTMPanel = module.getMaximoToolModulePanel();
+		// ** 以下代码被注释掉了，它将会导致针对某一组件在运行时设置的UI将在下
+		// ** 次重新loadDemo时被置为当前正在使用的L&F的默认组件UI:比如，原本在程序初始化时把一按钮设置成绿色的自定义
+		// ** UI，但它所有在Demo被利于新load时因调用此方法而使该按钮重新恢复到当前L&F的默认UI（再也不是绿色了
+		// ** ，当然该段代码不能算作bug，只是SwingSet2为了确保演示L&F时能即时刷新UI，但恰好跟jb2011需要的目标不同而已）！
+		// SwingUtilities.updateComponentTreeUI(currentDemoPanel);
+		mainPanel.removeAll();
+		mainPanel.add(currentMTMPanel, BorderLayout.CENTER);
+		//更新页面，负责无法显示
+		mainPanel.updateUI();
+		
+		
+	}
+
+	public MaximoToolModule addMaximoToolModule(MaximoToolModule module) {
+		// demosList.add(demo);
+		// do the following on the gui thread
+		SwingUtilities.invokeLater(new MaximoToolUIRunnable(this, module) {
 			public void run() {
-				SwitchToDemoAction action = new SwitchToDemoAction(maximoToolUI,navigationName);
+				NavigationAction action = new NavigationAction(maximoToolUI, (MaximoToolModule) obj);
 				JToggleButton tb = maximoToolUI.getToolBar().addToggleButton(action);
 				// swingset.getToolBar().add(new
 				// JSeparator(JSeparator.VERTICAL));
@@ -141,11 +178,15 @@ public class MaximoToolUI extends JPanel {
 				}
 				// tb.setText(null);
 				tb.setIcon(null);
-				tb.setToolTipText(navigationName);
+				tb.setToolTipText(((MaximoToolModule) obj).getToolTip());
+
+				if ((panelClassPackage+"."+topNavigation[topNavigation.length - 1]).equals(obj.getClass().getName())) {
+					setStatus(systemEnvironmental.getResource2String("Status.popupMenuAccessible"));
+				}
 			}
 		});
+		return module;
 	}
-
 	/**
 	 * 初始化Maximo工具界面
 	 */
@@ -175,7 +216,8 @@ public class MaximoToolUI extends JPanel {
 		toolbarPanel.addContainerListener(toolbarPanel);
 
 		// 主面板
-		JPanel mainPanel = new JPanel();
+		
+		mainPanel = new JPanel();
 		mainPanel.setLayout(new BorderLayout());
 		mainPanel.setBorder(new DottedLinePanelBorder());
 		add(mainPanel, BorderLayout.CENTER);
@@ -185,9 +227,16 @@ public class MaximoToolUI extends JPanel {
 		JLabel hintLabel = N9ComponentFactory
 				.createLabel_style1(systemEnvironmental.getResource2String("FriendlyTips"));
 		hinePanel.add(hintLabel, BorderLayout.WEST);
+
+		// 状态栏
+		statusField = new JLabel("");
+		statusField.setBorder(BorderFactory.createEmptyBorder(2, 4, 2, 4));
+		hinePanel.add(statusField, BorderLayout.CENTER);
+
 		// 设置边距
 		hinePanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 0, 4));
 		add(hinePanel, BorderLayout.SOUTH);
+
 	}
 
 	/**
@@ -279,59 +328,11 @@ public class MaximoToolUI extends JPanel {
 	 */
 	public static JFrame createFrame(GraphicsConfiguration gc) {
 		JFrame frame = new JFrame(gc);
-		if (numSSs == 0) {
-			frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		} else {
-			WindowListener l = new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					numSSs--;
-					swingSets.remove(this);
-				}
-			};
-			frame.addWindowListener(l);
-		}
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// 由Jack Jiang于2012-09-22加上，防止因JToolBar的大小而影响JFrame的prefereSize使得没法再缩小
 		frame.setMinimumSize(new Dimension(100, 100));
 		return frame;
-	}
-
-
-	// number of swingsets - for multiscreen
-	// keep track of the number of SwingSets created - we only want to exit
-	// the program when the last one has been closed.
-	/** The num s ss. */
-	private static int numSSs = 0;
-
-
-	// Status Bar
-	/** The status field. */
-	private JLabel statusField = null;
-
-	/** The swing sets. */
-	private static Vector<MaximoToolUI> swingSets = new Vector<MaximoToolUI>();
-
-	/** The toolbar group. */
-	private ButtonGroup toolbarGroup = new ButtonGroup();
-
-	/** The demos. */
-	String[] demos = { "ButtonDemo", "ColorChooserDemo", "ComboBoxDemo", "FileChooserDemo", "HtmlDemo", "ListDemo",
-			"OptionPaneDemo", "ProgressBarDemo", "ScrollPaneDemo", "SliderDemo", "SplitPaneDemo", "TabbedPaneDemo",
-			"TableDemo", "ToolTipDemo", "TreeDemo" };
-
-	/**
-	 * Set the status.
-	 *
-	 * @param s
-	 *            the new status
-	 */
-	public void setStatus(String s) {
-		// do the following on the gui thread
-		SwingUtilities.invokeLater(new SwingSetRunnable(this, s) {
-			public void run() {
-				maximoToolUI.statusField.setText((String) obj);
-			}
-		});
 	}
 
 	/**
@@ -359,8 +360,6 @@ public class MaximoToolUI extends JPanel {
 
 			f.setLocation(centerWidth, centerHeight);
 			f.setVisible(true);
-			numSSs++;
-			swingSets.add(this);
 		}
 	}
 
@@ -369,8 +368,22 @@ public class MaximoToolUI extends JPanel {
 		BeautyEyeLNFHelper.debug = true;
 		BeautyEyeLNFHelper.launchBeautyEyeLNF();
 		// 构建Maximo工具界面
-		MaximoToolUI maximotoolui = new MaximoToolUI(
+		// MaximoToolUI maximotoolui =
+		new MaximoToolUI(
 				GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration());
+	}
+
+	/**
+	 * 设置状态栏状态
+	 *
+	 */
+	public void setStatus(String s) {
+		// do the following on the gui thread
+		SwingUtilities.invokeLater(new MaximoToolUIRunnable(this, s) {
+			public void run() {
+				maximoToolUI.statusField.setText((String) obj);
+			}
+		});
 	}
 
 	/**
@@ -423,108 +436,13 @@ public class MaximoToolUI extends JPanel {
 		return new ImageIcon(getClass().getResource(path));
 	}
 
-	// *******************************************************
-	// ********* ToolBar Panel / Docking Listener ***********
-	// *******************************************************
-	/**
-	 * The Class ToolBarPanel.
-	 */
-	class ToolBarPanel extends JPanel implements ContainerListener {
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see javax.swing.JComponent#contains(int, int)
-		 */
-		public boolean contains(int x, int y) {
-			Component c = getParent();
-			if (c != null) {
-				Rectangle r = c.getBounds();
-				return (x >= 0) && (x < r.width) && (y >= 0) && (y < r.height);
-			} else {
-				return super.contains(x, y);
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.awt.event.ContainerListener#componentAdded(java.awt.event.
-		 * ContainerEvent)
-		 */
-		public void componentAdded(ContainerEvent e) {
-			Container c = e.getContainer().getParent();
-			if (c != null) {
-				c.getParent().validate();
-				c.getParent().repaint();
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * java.awt.event.ContainerListener#componentRemoved(java.awt.event.
-		 * ContainerEvent)
-		 */
-		public void componentRemoved(ContainerEvent e) {
-			Container c = e.getContainer().getParent();
-			if (c != null) {
-				c.getParent().validate();
-				c.getParent().repaint();
-			}
-		}
-	}
-
-	// *******************************************************
-	// ************** ToggleButtonToolbar *****************
-	// *******************************************************
-	/** The zero insets. */
-	static Insets zeroInsets = new Insets(3, 2, 3, 2);
-
-	/**
-	 * The Class ToggleButtonToolBar.
-	 */
-	protected class ToggleButtonToolBar extends JToolBar {
-
-		/**
-		 * Instantiates a new toggle button tool bar.
-		 */
-		public ToggleButtonToolBar() {
-			super();
-			this.setFloatable(true);
-			// this.putClientProperty("ToolBar.isPaintPlainBackground",
-			// Boolean.TRUE);
-		}
-
-		/**
-		 * Adds the toggle button.
-		 *
-		 * @param a
-		 *            the a
-		 * @return the j toggle button
-		 */
-		JToggleButton addToggleButton(Action a) {
-			JToggleButton tb = new JToggleButton((String) a.getValue(Action.NAME), null
-			// (Icon)a.getValue(Action.SMALL_ICON)
-			);
-			// tb.setMargin(zeroInsets);
-			// tb.setText(null);
-			tb.setEnabled(a.isEnabled());
-			tb.setToolTipText((String) a.getValue(Action.SHORT_DESCRIPTION));
-			tb.setAction(a);
-			add(tb);
-			return tb;
-		}
-	}
-
 	/**
 	 * Generic SwingSet2 runnable. This is intended to run on the AWT gui event
 	 * thread so as not to muck things up by doing gui work off the gui thread.
 	 * Accepts a SwingSet2 and an Object as arguments, which gives subtypes of
 	 * this class the two "must haves" needed in most runnables for this demo.
 	 */
-	class SwingSetRunnable implements Runnable {
+	class MaximoToolUIRunnable implements Runnable {
 
 		/** The swingset. */
 		protected MaximoToolUI maximoToolUI;
@@ -540,7 +458,7 @@ public class MaximoToolUI extends JPanel {
 		 * @param obj
 		 *            the obj
 		 */
-		public SwingSetRunnable(MaximoToolUI maximoToolUI, Object obj) {
+		public MaximoToolUIRunnable(MaximoToolUI maximoToolUI, Object obj) {
 			this.maximoToolUI = maximoToolUI;
 			this.obj = obj;
 		}
@@ -555,99 +473,30 @@ public class MaximoToolUI extends JPanel {
 	}
 
 	/**
-	 * The Class SwitchToDemoAction.
+	 * 在单独线程中加载导航栏
 	 */
-	public class SwitchToDemoAction extends AbstractAction {
+	class TopNavigationLoadThread extends Thread {
 
-		/** The swingset. */
 		MaximoToolUI maximoToolUI;
 
 		/**
-		 * Instantiates a new switch to demo action.
+		 * Instantiates a new demo load thread.
 		 *
 		 * @param swingset
 		 *            the swingset
-		 * @param demo
-		 *            the demo
 		 */
-		public SwitchToDemoAction(MaximoToolUI maximoToolUI,String N) {
-			super(N, null);
+		public TopNavigationLoadThread(MaximoToolUI maximoToolUI) {
 			this.maximoToolUI = maximoToolUI;
 		}
 
 		/*
 		 * (non-Javadoc)
 		 * 
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.
-		 * ActionEvent)
+		 * @see java.lang.Thread#run()
 		 */
-		public void actionPerformed(ActionEvent e) {
+		public void run() {
+			maximoToolUI.loadTopNavigation();
 		}
 	}
 
-	// -------------------------------------------------------------
-	// 由jb2011于2012-06-20实现
-	// 用于DemoPanel的边框实现，视觉目标是：简洁。
-	// 原EtchedBorder边框太土，但是没边框将导致整体效果稍显单调，所以做此边框
-	/**
-	 * The Class DemoPanelBorder.
-	 */
-	private class DottedLinePanelBorder extends AbstractBorder {
-
-		private static final long serialVersionUID = 1L;
-
-		public DottedLinePanelBorder() {
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * javax.swing.border.AbstractBorder#paintBorder(java.awt.Component,
-		 * java.awt.Graphics, int, int, int, int)
-		 */
-		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-			// g.drawLine(x,y, widthheight); // draw top
-			// g.drawLine(x,y, x,height-1); // draw left
-			// g.drawLine(width-1,y, width-1,height-1); // draw right
-
-			// ** 绘制border的底线
-			// 虚线样式
-			Stroke oldStroke = ((Graphics2D) g).getStroke();
-			Stroke sroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 1, 2 }, 0);// 实线，空白
-			((Graphics2D) g).setStroke(sroke);
-			// 底边上（浅灰色）
-			g.setColor(new Color(200, 200, 200));
-			g.drawLine(x, height - 2, width - 1, height - 2); // draw bottom1
-			// 底边下（白色）：绘制一条白色虚线的目的是与上面的灰线产生较强对比度从而形成立体效果
-			// ，本L&F实现中因与Panel的底色对比度不够强烈而立体感不明显（颜色越深的底色最终效果越明显）
-			g.setColor(Color.white);
-			g.drawLine(x, height - 1, width - 1, height - 1);// draw bottom2
-
-			((Graphics2D) g).setStroke(oldStroke);
-		}
-
-		// border只有底边，且高度为2像素
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component)
-		 */
-		public Insets getBorderInsets(Component c) {
-			return new Insets(0, 0, 2, 0);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * javax.swing.border.AbstractBorder#getBorderInsets(java.awt.Component,
-		 * java.awt.Insets)
-		 */
-		public Insets getBorderInsets(Component c, Insets insets) {
-			// insets.top = insets.left = insets.bottom = insets.right = 1;
-			return getBorderInsets(c);// insets;
-		}
-	}
 }

@@ -157,7 +157,7 @@ public class MaximoToolUI extends JPanel {
 		// SwingUtilities.updateComponentTreeUI(currentDemoPanel);
 		mainPanel.removeAll();
 		mainPanel.add(currentMTMPanel, BorderLayout.CENTER);
-		//更新页面，负责无法显示
+		//更新页面，否则无法显示
 		mainPanel.updateUI();
 		
 		

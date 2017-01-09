@@ -20,7 +20,6 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.SwingUtilities;
 
@@ -69,7 +68,7 @@ public class MaximoToolUI extends JPanel {
 
 	private static final String panelClassPackage = "cn.shuto.maximo.tool.UI.panel";
 	/** The demos. */
-	String[] topNavigation = { "DBConfig","Application" };
+	String[] topNavigation = { "DBConfig" };
 
 	/**
 	 * 构造器函数,
@@ -344,7 +343,7 @@ public class MaximoToolUI extends JPanel {
 		if (getFrame() != null) {
 			// put swingset in a frame and show it
 			JFrame f = getFrame();
-			f.setTitle(systemEnvironmental.getResource2String("Frame.title"));
+			f.setTitle(systemEnvironmental.getResource2String("Application.title"));
 			f.getContentPane().add(this, BorderLayout.CENTER);
 			// f.pack();
 			f.setSize(1024, 750);

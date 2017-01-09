@@ -2,6 +2,7 @@ package cn.shuto.maximo.tool.UI.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.MissingResourceException;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -123,7 +124,7 @@ public class MaximoToolModule extends JApplet {
 		UIManager.put("swing.boldMetal", Boolean.FALSE);
 		panel = new JPanel();
 
-		panel.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+		panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		panel.setLayout(new BorderLayout());
 
 		this.resourceName = resourceName;
@@ -172,6 +173,21 @@ public class MaximoToolModule extends JApplet {
 		}
 	}
 
+	   /**
+     * Gets the string.
+     *
+     * @param key the key
+     * @return the string
+     */
+    public String getString(String key) {
+	String value = "no....";
+	try {
+	    value = systemEnvironmental.getResource2String(key);
+	} catch (MissingResourceException e) {
+	    System.out.println("java.util.MissingResourceException: Couldn't find value for: " + key);
+	}
+	return value;
+    }
 
 	/*
 	 * (non-Javadoc)

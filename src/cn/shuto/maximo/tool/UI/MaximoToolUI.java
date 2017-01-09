@@ -85,6 +85,8 @@ public class MaximoToolUI extends JPanel {
 
 		// 设置首次大小
 		setPreferredSize(new Dimension(PREFERRED_WIDTH, PREFERRED_HEIGHT));
+		
+		frame.setIconImage(createImageIcon(systemEnvironmental.getResource2String("Application.icon"), "").getImage());
 		// 初始化Maximo工具界面
 		initializeMaximoToolUI();
 

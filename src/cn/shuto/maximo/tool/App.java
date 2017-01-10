@@ -20,6 +20,8 @@ public class App {
 	private static Logger _log = Logger.getLogger(App.class.getName());
 
 	public static void main(String[] argv) {
+		System.out.println("================");
+		_log.info("------------系统退出,释放资源!--------------");
 		// 注册系统退出事件，退出系统时关闭数据库连接
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override

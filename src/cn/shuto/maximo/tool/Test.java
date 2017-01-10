@@ -6,6 +6,12 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.ProjectHelper;
+import org.apache.tools.ant.Target;
+import org.apache.tools.ant.Task;
+import org.apache.tools.ant.taskdefs.Echo;
+import org.apache.tools.ant.taskdefs.Java;
+import org.apache.tools.ant.taskdefs.Mkdir;
+import org.apache.tools.ant.types.LogLevel;
 
 public class Test {
 	public static void main(String[] args) {
@@ -15,19 +21,27 @@ public class Test {
 		DefaultLogger consoleLogger = new DefaultLogger();
 		consoleLogger.setErrorPrintStream(System.err);
 		consoleLogger.setOutputPrintStream(System.out);
+		consoleLogger.setMessageOutputLevel(LogLevel.INFO.getLevel());
 		
 		p.addBuildListener(consoleLogger);
 		
-		try {
-			p.fireBuildStarted();
-			p.init();
-			ProjectHelper helper = ProjectHelper.getProjectHelper();
-			helper.parse(p, f);
-			p.executeTarget(p.getDefaultTarget());
-			p.fireBuildFinished(null);
-		} catch (BuildException e) {
-			p.fireBuildFinished(e);
-		}
+		Echo echo = new Echo();
+		echo.setProject(p);
+		echo.addText("hello");
+		Java j = new Java(echo);
+		j.setClassname("cn.shuto.maximo.tool.App");
+		
+		Target target = new Target();
+		target.setProject(p);
+		target.setName("asdsa");
+		target.addTask(j);
+		target.addTask(echo);
+		
+	
+		
+		
+		target.execute();
+		
 
 	}
 }

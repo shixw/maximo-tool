@@ -158,6 +158,7 @@ public class SystemConfig extends MaximoToolModule implements ActionListener {
 		chooseFilePanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
 		final JTextField chooseFilePathTextField = new JTextField(50);
+		chooseFilePathTextField.setEditable(false);
 		chooseFilePathTextField.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusLost(FocusEvent e) {
@@ -186,6 +187,7 @@ public class SystemConfig extends MaximoToolModule implements ActionListener {
 
 				if (result == JFileChooser.APPROVE_OPTION) {
 					textField.setText(fc.getSelectedFile().getPath());
+					textField.requestFocus();
 				}
 			}
 		};

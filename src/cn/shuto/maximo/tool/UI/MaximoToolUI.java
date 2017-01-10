@@ -379,12 +379,16 @@ public class MaximoToolUI extends JPanel {
 	 *
 	 */
 	public void setStatus(String s) {
-		// do the following on the gui thread
-		SwingUtilities.invokeLater(new MaximoToolUIRunnable(this, s) {
-			public void run() {
-				maximoToolUI.statusField.setText((String) obj);
-			}
-		});
+		if(s==null){
+			s = systemEnvironmental.getResource2String("Status.popupMenuAccessible");
+		}
+		this.statusField.setText(s);
+//		// do the following on the gui thread
+//		SwingUtilities.invokeLater(new MaximoToolUIRunnable(this, s) {
+//			public void run() {
+//				maximoToolUI.statusField.setText((String) obj);
+//			}
+//		});
 	}
 
 	/**

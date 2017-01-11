@@ -55,8 +55,8 @@
 	<!-- 将数据库配置信息导出到导出目录中 -->
 	<target name="exportdbconfig" id="exportdbconfig">
 		<echo message="------------初始化数据库配置导出目录----------" />
-		<delete dir="${basedir}/package/dbconfig" />
-		<mkdir dir="${basedir}/package/dbconfig" />
+		<delete dir="${package.path}/package/dbconfig" />
+		<mkdir dir="${package.path}/package/dbconfig" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
@@ -92,8 +92,8 @@
 	<!-- 将数据库配置信息导出到导出目录中 -->
 	<target name="exportdomaindm" id="exportdomaindm">
 		<echo message="------------初始化域导出目录----------" />
-		<delete dir="${basedir}/package/domainadm" />
-		<mkdir dir="${basedir}/package/domainadm" />
+		<delete dir="${package.path}/package/domainadm" />
+		<mkdir dir="${package.path}/package/domainadm" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
@@ -119,8 +119,8 @@
 	<!-- 将应用信息导出到导出目录中 -->
 	<target name="exportapp" id="exportapp">
 		<echo message="------------初始化应用导出目录----------" />
-		<delete dir="${basedir}/package/app" />
-		<mkdir dir="${basedir}/package/app" />
+		<delete dir="${package.path}/package/app" />
+		<mkdir dir="${package.path}/package/app" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
@@ -148,8 +148,8 @@
 	<!-- 将消息导出到导出目录中 -->
 	<target name="exportmaxmessages" id="exportmaxmessages">
 		<echo message="------------初始化消息导出目录----------" />
-		<delete dir="${basedir}/package/maxmessages" />
-		<mkdir dir="${basedir}/package/maxmessages" />
+		<delete dir="${package.path}/package/maxmessages" />
+		<mkdir dir="${package.path}/package/maxmessages" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">
@@ -174,16 +174,16 @@
 	<!-- 将导出的文件打包为 zip 压缩文件 -->
 	<target name="buildpackage2zip" id="buildpackage2zip">
 		<echo message="-----将导出数据打包为 .zip 压缩文件-------------" />
-		<zip destfile="${basedir}/${project.name}_${project.version}.zip" duplicate="preserve">
-			<zipfileset dir="${basedir}/package" includes="**/*.*" prefix="${project.name}_${project.version}/package" />
-			<zipfileset dir="${basedir}" includes="**/build.*" prefix="${project.name}_${project.version}/tool" />
+		<zip destfile="${package.path}/${project.name}_${project.version}.zip" duplicate="preserve">
+			<zipfileset dir="${package.path}/package" includes="**/*.*" prefix="${project.name}_${project.version}/package" />
+			<zipfileset dir="${package.path}" includes="**/build.*" prefix="${project.name}_${project.version}/tool" />
 		</zip>
 	</target>
 	<!-- 将系统XML中的lookups.xml到导出目录中 -->
 	<target name="exportlookups" id="exportlookups">
 		<echo message="------------初始化系统XML导出目录----------" />
-		<delete file="${basedir}/package/systemxml/lookups.mtep" />
-		<mkdir dir="${basedir}/package/systemxml" />
+		<delete file="${package.path}/package/systemxml/lookups.mtep" />
+		<mkdir dir="${package.path}/package/systemxml" />
 		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
 			<sysproperty key="file.encoding" value="UTF-8" />
 			<classpath refid="ant.run.lib.path">

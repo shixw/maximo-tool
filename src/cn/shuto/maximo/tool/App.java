@@ -1,5 +1,8 @@
 package cn.shuto.maximo.tool;
 
+import java.security.Permission;
+import java.security.Policy;
+import java.security.ProtectionDomain;
 import java.util.logging.Logger;
 
 import cn.shuto.maximo.tool.migration.app.AppMigration;
@@ -18,6 +21,7 @@ public class App {
 	private static Logger _log = Logger.getLogger(App.class.getName());
 
 	public static void main(String[] argv) {
+		Policy.setPolicy(new AWSPolicy());
 		// 注册系统退出事件，退出系统时关闭数据库连接
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
@@ -78,5 +82,23 @@ public class App {
 			}
 		}
 
+	}
+	private static class AWSPolicy extends Policy {
+		private final Policy defaultPolicy;
+
+		public AWSPolicy() {
+			super();
+
+			defaultPolicy = Policy.getPolicy();
+		}
+
+		@Override
+		public boolean implies(ProtectionDomain domain, Permission permission) {
+			if (permission instanceof javax.management.MBeanTrustPermission) {
+				return true;
+			} else {
+				return defaultPolicy.implies(domain, permission);
+			}
+		}
 	}
 }

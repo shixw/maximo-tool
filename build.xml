@@ -2,6 +2,7 @@
 <project name="maximo-tool" basedir="." default="maximoexport">
 	<!-- Ant运行时的配置文件 -->
 	<property file="build.properties" />
+	<property file="${maximo.path}\properties\maximo.properties" />
 
 	<!-- ant运行需要的jar包 -->
 	<path id="ant.run.lib.path">

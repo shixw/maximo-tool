@@ -3,6 +3,8 @@ package cn.shuto.maximo.tool.migration.domainadm.bean;
 import java.io.Serializable;
 import java.util.List;
 
+import cn.shuto.maximo.tool.system.SystemEnvironmental;
+
 public class MaxDomain implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -104,10 +106,17 @@ public class MaxDomain implements Serializable {
 		this.internal = internal;
 	}
 
-	private static final String INSERTMAXDOMAIN = "insert into MAXDOMAIN (DOMAINID, DESCRIPTION, DOMAINTYPE, MAXTYPE, LENGTH, SCALE, MAXDOMAINID, INTERNAL) values ('%s', '%s', '%s', '%s', %s, %s, %s, %s)";
+	private static final String INSERTMAXDOMAIN75 = "insert into MAXDOMAIN (DOMAINID, DESCRIPTION, DOMAINTYPE, MAXTYPE, LENGTH, SCALE, MAXDOMAINID, INTERNAL) values ('%s', '%s', '%s', '%s', %s, %s, %s, %s)";
+	
+	private static final String INSERTMAXDOMAIN76 = "insert into MAXDOMAIN (DOMAINID, DESCRIPTION, DOMAINTYPE, MAXTYPE, LENGTH, SCALE, MAXDOMAINID, INTERNAL, NEVERCACHE) values ('%s', '%s', '%s', '%s', %s, %s, %s, %s, 0)";
 
 	public String toInsertSql() {
-		return String.format(INSERTMAXDOMAIN, this.domainid, this.description, this.domaintype, this.maxtype,
+		String targetVersion = SystemEnvironmental.getInstance().getStringParam("-targetVersion");
+		if(!targetVersion.isEmpty()&&"7.6".equals(targetVersion)){
+			return String.format(INSERTMAXDOMAIN76, this.domainid, this.description, this.domaintype, this.maxtype,
+					this.length, this.scale, this.maxdomainid, this.internal);
+		}
+		return String.format(INSERTMAXDOMAIN75, this.domainid, this.description, this.domaintype, this.maxtype,
 				this.length, this.scale, this.maxdomainid, this.internal);
 	}
 

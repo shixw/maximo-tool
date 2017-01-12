@@ -3,6 +3,8 @@ package cn.shuto.maximo.tool.migration.app.bean;
 import java.io.Serializable;
 import java.util.List;
 
+import cn.shuto.maximo.tool.system.SystemEnvironmental;
+
 public class MaxApps implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -151,10 +153,15 @@ public class MaxApps implements Serializable {
 		this.ismobile = ismobile;
 	}
 
-	private static final String INSERTMAXAPPS = "insert into maxapps ( APP, DESCRIPTION, APPTYPE, RESTRICTIONS, ORDERBY, ORIGINALAPP, CUSTAPPTYPE, MAINTBNAME, MAXAPPSID, ISMOBILE) values ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s')";
-
+	private static final String INSERTMAXAPPS75 = "insert into maxapps ( APP, DESCRIPTION, APPTYPE, RESTRICTIONS, ORDERBY, ORIGINALAPP, CUSTAPPTYPE, MAINTBNAME, MAXAPPSID, ISMOBILE) values ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s')";
+	private static final String INSERTMAXAPPS76 = "insert into maxapps ( APP, DESCRIPTION, APPTYPE, RESTRICTIONS, ORDERBY, ORIGINALAPP, CUSTAPPTYPE, MAINTBNAME, MAXAPPSID, ISMOBILE,LOCKENABLED) values ( '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s',0)";
 	public String toInsertSql() {
-		return String.format(INSERTMAXAPPS, this.app, this.description, this.apptype, this.restrictions, this.orderby,
+		String targetVersion = SystemEnvironmental.getInstance().getStringParam("-targetVersion");
+		if(!targetVersion.isEmpty()&&"7.6".equals(targetVersion)){
+			return String.format(INSERTMAXAPPS76, this.app, this.description, this.apptype, this.restrictions, this.orderby,
+					this.originalapp, this.custapptype, this.maintbname, this.maxappsid, this.ismobile);
+		}
+		return String.format(INSERTMAXAPPS75, this.app, this.description, this.apptype, this.restrictions, this.orderby,
 				this.originalapp, this.custapptype, this.maintbname, this.maxappsid, this.ismobile);
 	}
 

@@ -74,6 +74,7 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importdbconfig" />
+			<arg value="-targetVersion=${maximo.version}" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>
@@ -111,6 +112,7 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importdomainadm" />
+			<arg value="-targetVersion=${maximo.version}" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>
@@ -140,6 +142,7 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importapp" />
+			<arg value="-targetVersion=${maximo.version}" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>
@@ -167,6 +170,7 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importmaxmessages" />
+			<arg value="-targetVersion=${maximo.version}" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>
@@ -202,6 +206,7 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importlookups" />
+			<arg value="-targetVersion=${maximo.version}" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />
 		</java>

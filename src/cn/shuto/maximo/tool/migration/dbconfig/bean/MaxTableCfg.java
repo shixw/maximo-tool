@@ -2,6 +2,8 @@ package cn.shuto.maximo.tool.migration.dbconfig.bean;
 
 import java.io.Serializable;
 
+import cn.shuto.maximo.tool.system.SystemEnvironmental;
+
 public class MaxTableCfg implements Serializable {
 
 	private static final long serialVersionUID = 1L;
@@ -164,10 +166,19 @@ public class MaxTableCfg implements Serializable {
 		this.contentattribute = contentattribute;
 	}
 
-	private static final String INSERTMAXTABLECFG = "insert into maxtablecfg ( TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE) values ( '%S', %S, '%S', %S, %S, '%S', %S, '%S', '%S', '%S', %S, %S, '%S', '%S', '%S')";
+	private static final String INSERTMAXTABLECFG75 = "insert into maxtablecfg ( TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE) values ( '%S', %S, '%S', %S, %S, '%S', %S, '%S', '%S', '%S', %S, %S, '%S', '%S', '%S')";
+	
+	private static final String INSERTMAXTABLECFG76 = "insert into maxtablecfg ( TABLENAME, ADDROWSTAMP, EAUDITTBNAME, ISAUDITTABLE, RESTOREDATA, STORAGEPARTITION, TEXTSEARCHENABLED, LANGTABLENAME, LANGCOLUMNNAME, UNIQUECOLUMNNAME, ISLANGTABLE, MAXTABLEID, ALTIXNAME, TRIGROOT, CONTENTATTRIBUTE , EXTTABLENAME , STORAGETYPE) values ( '%S', %S, '%S', %S, %S, '%S', %S, '%S', '%S', '%S', %S, %S, '%S', '%S', '%S' ,'' ,0)";
 
 	public String toInsertSql() {
-		return String.format(INSERTMAXTABLECFG, this.tablename, this.addrowstamp, this.eaudittbname, this.isaudittable,
+		String targetVersion = SystemEnvironmental.getInstance().getStringParam("-targetVersion");
+		if(!targetVersion.isEmpty()&&"7.6".equals(targetVersion)){
+			return String.format(INSERTMAXTABLECFG76, this.tablename, this.addrowstamp, this.eaudittbname, this.isaudittable,
+					this.restoredata, this.storagepartition, this.textsearchenabled, this.langtablename,
+					this.langcolumnname, this.uniquecolumnname, this.islangtable, this.maxtableid, this.altixname,
+					this.trigroot, this.contentattribute);
+		}
+		return String.format(INSERTMAXTABLECFG75, this.tablename, this.addrowstamp, this.eaudittbname, this.isaudittable,
 				this.restoredata, this.storagepartition, this.textsearchenabled, this.langtablename,
 				this.langcolumnname, this.uniquecolumnname, this.islangtable, this.maxtableid, this.altixname,
 				this.trigroot, this.contentattribute);

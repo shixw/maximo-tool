@@ -18,8 +18,13 @@
 	<!-- Maximo系统导出的统一任务配置 -->
 	<target name="maximoexport" id="maximoexport" depends="exportdbconfig,exportdomaindm,exportapp,exportlookups,exportmaxmessages,buildsourcecode" />
 	<!-- Maximo系统导入的统一任务配置 -->
-	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importmaxmessages,importdomainadm,importapp,importlookups" />
-
+	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importmaxmessages,importdomainadm,importapp,importlookups,initdata" />
+	<!-- 执行初始化数据 -->
+	<target name="initdata">
+		<sql print="true" encoding="UTF-8" src="${package.path}/package/initdata/initdata.sql" userid="${mxe.db.user}" url="${mxe.db.url}" password="${mxe.db.password}" driver="${mxe.db.driver}">
+			<classpath refid="ant.run.lib.path" />
+		</sql>
+	</target>
 	<!-- 编译源代码  -->
 	<target name="buildsourcecode" id="buildsourcecode" description="编译源代码">
 		<echo message="-----------创建编译源代码的目录--------------" />

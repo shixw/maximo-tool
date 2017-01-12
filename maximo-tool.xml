@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="maximo-tool" basedir="." default="jar">
+	<property name="version" value="1.0.0">
+	</property>
+	<property name="mainclass" value="cn.shuto.maximo.tool.App">
+	</property>
+	<!-- 编译源代码  -->
+	<target name="compile" id="compiler" description="编译源代码">
+		<echo message="-----------开始编译源代码--------------" />
+		<delete dir="${basedir}\classes" />
+		<mkdir dir="${basedir}\classes" />
+		<echo message="-----------开始编译源代码--------------" />
+		<javac destdir="${basedir}\classes" srcdir="${basedir}\src" includeantruntime="false" source="1.6" target="1.6">
+		</javac>
+		<echo message="-------编译完成---------" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<!-- jar文件的输出路径 -->
+		<jar destfile="${basedir}/maximo-tool_${version}.jar" basedir="${basedir}\classes">
+			<manifest>
+				<attribute name="Main-class" value="${mainclass}" />
+				<attribute name="Created-By" value="Apache Ant" />
+				<attribute name="Built-By" value="shixw" />
+				<attribute name="Build-Jdk" value="1.6" />
+			</manifest>
+		</jar>
+		<delete dir="${basedir}\classes" />
+	</target>
+</project>

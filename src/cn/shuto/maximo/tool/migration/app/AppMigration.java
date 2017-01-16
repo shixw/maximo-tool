@@ -271,14 +271,14 @@ public class AppMigration {
 			if (modules != null && !"".equals(modules)) {
 				_log.info("----------导出模块:" + modules);
 				// 需要导出的对象数组
-				List<MaxModules> moduleList = exportModules(CommonUtil.buildExportObjects(modules));
+				List<MaxModules> moduleList = exportModules(CommonUtil.buildExportParames(modules));
 				SerializeUtil.writeObject(moduleList,
 						new File(SystemEnvironmental.getInstance().getStringParam("-packagepath") + MODLESFILEPATH));
 			}
 			// 导出 应用程序
 			if (apps != null && !"".equals(apps)) {
 				_log.info("----------导出应用程序:" + apps);
-				List<MaxApps> appList = exportApps(CommonUtil.buildExportObjects(apps));
+				List<MaxApps> appList = exportApps(CommonUtil.buildExportParames(apps));
 				SerializeUtil.writeObject(appList,
 						new File(SystemEnvironmental.getInstance().getStringParam("-packagepath") + APPFILEPATH));
 			}

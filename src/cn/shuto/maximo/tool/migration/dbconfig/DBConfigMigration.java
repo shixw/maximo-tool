@@ -150,7 +150,7 @@ public class DBConfigMigration {
 	public void exportDBConfig(String exportObjects) {
 		_log.info("---------- 需要导出的数据库配置的对象为:" + exportObjects);
 		// 需要导出的对象数组
-		exportDBConfig(CommonUtil.buildExportObjects(exportObjects));
+		exportDBConfig(CommonUtil.buildExportParames(exportObjects));
 	}
 
 	/**

@@ -7,7 +7,7 @@ public class CommonUtil {
 	 * @param exportObjects
 	 * @return
 	 */
-	public static String[] buildExportObjects(String exportParames) {
+	public static String[] buildExportParames(String exportParames) {
 		return exportParames!=null?exportParames.split(","):null;
 	}
 

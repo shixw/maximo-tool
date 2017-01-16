@@ -115,7 +115,7 @@ public class DomainadmMigration {
 	public void exportDomainadm(String exportObjects) {
 		_log.info("---------- 需要导出的域为:" + exportObjects);
 		// 需要导出的对象数组
-		exportDomainadm(CommonUtil.buildExportObjects(exportObjects));
+		exportDomainadm(CommonUtil.buildExportParames(exportObjects));
 
 	}
 

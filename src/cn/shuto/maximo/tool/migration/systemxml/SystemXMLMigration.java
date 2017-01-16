@@ -108,7 +108,7 @@ public class SystemXMLMigration {
 	public void exportLookups(String lookupsids) {
 		_log.info("---------- 需要导出的lookups.XML 为:" + lookupsids);
 		// 需要的消息的 MSGID 的数组
-		String[] exportlookupsids = CommonUtil.buildExportObjects(lookupsids);
+		String[] exportlookupsids = CommonUtil.buildExportParames(lookupsids);
 		if (exportlookupsids != null)
 			exportLookups(exportlookupsids);
 

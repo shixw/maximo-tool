@@ -98,7 +98,7 @@ public class MaxMessagesMigration {
 	public void exportMaxMessages(String exportMaxMessages) {
 		_log.info("---------- 需要导出的消息为:" + exportMaxMessages);
 		// 需要的消息的 MSGID 的数组
-		exportMaxMessages(CommonUtil.buildExportObjects(exportMaxMessages));
+		exportMaxMessages(CommonUtil.buildExportParames(exportMaxMessages));
 
 	}
 

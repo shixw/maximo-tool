@@ -99,11 +99,14 @@ public class AppMigration {
 		}
 	}
 
+	// 应用程序导入后直接授权Maxadmin权限组
+	private static final String GRANTAPPAUTH = "insert into APPLICATIONAUTH(groupname,app,Optionname,Applicationauthid) select 'MAXADMIN',app,Optionname,APPLICATIONAUTHSEQ.NEXTVAL from sigoption where optionname <> 'NOPORTLET' and app||'-'||Optionname not in (select app||'-'||Optionname from APPLICATIONAUTH where app = '%s') and app = '%s'";
+
 	/**
 	 * 导入应用程序
 	 * 
 	 * @throws SQLException
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	private void importApps() throws SQLException, IOException {
 		List<MaxApps> applist = SerializeUtil.readObjectForList(
@@ -138,25 +141,28 @@ public class AppMigration {
 						importST.addBatch(sigoption.toInsertSql());
 					}
 				}
+				String GRANTAPPAUTHFORMAT = String.format(GRANTAPPAUTH, app.getApp(),app.getApp());
+				_log.info("----为Maxadmin授权应用权限------:"+GRANTAPPAUTHFORMAT);
+				importST.addBatch(GRANTAPPAUTHFORMAT);
 				// 执行 提交
 				importST.executeBatch();
 				conn.commit();
-				//导入 XML
+				// 导入 XML
 				insertXMLToMaxPresentation(app);
 			}
-			
-			
+
 		}
 	}
 
 	/**
 	 * 导入 应用程序 XML
+	 * 
 	 * @param app
 	 * @throws SQLException
 	 * @throws IOException
 	 */
 	private void insertXMLToMaxPresentation(MaxApps app) throws SQLException, IOException {
-		_log.info("--------------将应用程序-"+app.getDescription()+"----对应的XML导入到MaxPresentation表中------------------");
+		_log.info("--------------将应用程序-" + app.getDescription() + "----对应的XML导入到MaxPresentation表中------------------");
 		// 写入操作
 		String updatePresentationSql = "SELECT presentation from maxpresentation where app = ? for update";
 		PreparedStatement pstmt = conn.prepareStatement(updatePresentationSql);
@@ -192,8 +198,8 @@ public class AppMigration {
 			importST.addBatch(String.format(DELETEMAXMENU, app.getApp(), app.getApp()));
 			importST.addBatch(String.format(DELETESIGOPTION, app.getApp()));
 
-//			importST.executeBatch();
-//			conn.commit();
+			// importST.executeBatch();
+			// conn.commit();
 		} catch (SQLException e) {
 			try {
 				conn.rollback();

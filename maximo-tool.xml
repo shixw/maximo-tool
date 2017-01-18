@@ -14,8 +14,18 @@
 		</javac>
 		<echo message="-------编译完成---------" />
 	</target>
-
-	<target name="jar" depends="compile">
+	<target name="copyfile" id="copyfile">
+		<echo message="----复制编译后的代码到项目中---------------------" />
+		<copy todir="${basedir}\classes">
+			<fileset dir="${basedir}">
+				<include name="**/LICENSE" />
+				<include name="**/README.md" />
+				<include name="**/build.*" />
+				<include name="**/maximo-tool.xml" />
+			</fileset>
+		</copy>
+	</target>
+	<target name="jar" depends="compile,copyfile">
 		<!-- jar文件的输出路径 -->
 		<jar destfile="${basedir}/maximo-tool_${version}.jar" basedir="${basedir}\classes">
 			<manifest>

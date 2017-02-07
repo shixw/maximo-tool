@@ -33,9 +33,12 @@ public class MaxMessagesMigration {
 				.getMaximoConnection(SystemEnvironmental.getInstance().getStringParam("-maximopath"));
 		if (conn != null) {
 			try {
-				maxmessagesST = conn.prepareStatement(SELECTMESSAGES);
+				if (SystemEnvironmental.getInstance().getStringParam("-option").startsWith("export")) {
+					maxmessagesST = conn.prepareStatement(SELECTMESSAGES);
+				} else {
+					importST = conn.createStatement();
+				}
 
-				importST = conn.createStatement();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}

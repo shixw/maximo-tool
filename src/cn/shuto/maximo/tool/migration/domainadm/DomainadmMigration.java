@@ -36,10 +36,13 @@ public class DomainadmMigration {
 				.getMaximoConnection(SystemEnvironmental.getInstance().getStringParam("-maximopath"));
 		if (conn != null) {
 			try {
-				maxdomainST = conn.prepareStatement(SELECTMAXDOMAIN);
-				alndomainST = conn.prepareStatement(SELECTALNDOMAIN);
+				if (SystemEnvironmental.getInstance().getStringParam("-option").startsWith("export")) {
+					maxdomainST = conn.prepareStatement(SELECTMAXDOMAIN);
+					alndomainST = conn.prepareStatement(SELECTALNDOMAIN);
+				} else {
+					insertSt = conn.createStatement();
+				}
 
-				insertSt = conn.createStatement();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -55,16 +58,16 @@ public class DomainadmMigration {
 					new File(SystemEnvironmental.getInstance().getStringParam("-importpath") + DOMAINADMFILEPATH));
 			for (MaxDomain maxDomain : list) {
 				clearDomainadm(maxDomain);
-				_log.info("---导入表MaxDomain--数据 ："+maxDomain.toInsertSql());
+				_log.info("---导入表MaxDomain--数据 ：" + maxDomain.toInsertSql());
 				insertSt.addBatch(maxDomain.toInsertSql());
 				String domaintype = maxDomain.getDomaintype();
-				//如果为字母数字域  导入 ALNDomain 表
+				// 如果为字母数字域 导入 ALNDomain 表
 				if ("字母数字".equals(domaintype)) {
 					_log.info("---域为字母数字域，导入表 --alndomain-- ");
 					List<ALNDomain> alnDomains = maxDomain.getAlnDomains();
-					if(alnDomains!=null&&alnDomains.size()>0){
+					if (alnDomains != null && alnDomains.size() > 0) {
 						for (ALNDomain alnDomain : alnDomains) {
-							_log.info("---导入表alnDomain--数据 ："+alnDomain.toInsertSql());
+							_log.info("---导入表alnDomain--数据 ：" + alnDomain.toInsertSql());
 							insertSt.addBatch(alnDomain.toInsertSql());
 						}
 					}
@@ -86,17 +89,17 @@ public class DomainadmMigration {
 			closeResource();
 		}
 	}
+
 	private static final String DELETEMAXDOMAIN = "delete from MAXDOMAIN where DOMAINID='%s'";
 	private static final String DELETEALNDOMAIN = "delete from ALNDOMAIN where DOMAINID='%s'";
-	
 
-	private void clearDomainadm(MaxDomain maxDomain){
+	private void clearDomainadm(MaxDomain maxDomain) {
 		String deleteFormatSql = String.format(DELETEMAXDOMAIN, maxDomain.getDomainid());
 		_log.info("-----清理域数据:----------" + deleteFormatSql);
 		try {
 			insertSt.addBatch(deleteFormatSql);
 			String domaintype = maxDomain.getDomaintype();
-			//如果为字母数字域  导入 ALNDomain 表
+			// 如果为字母数字域 导入 ALNDomain 表
 			if ("字母数字".equals(domaintype)) {
 				_log.info("---域为字母数字域，清理表 --alndomain-- ");
 				String deleteAlnDomainFormatSql = String.format(DELETEALNDOMAIN, maxDomain.getDomainid());
@@ -112,6 +115,7 @@ public class DomainadmMigration {
 			e.printStackTrace();
 		}
 	}
+
 	public void exportDomainadm(String exportObjects) {
 		_log.info("---------- 需要导出的域为:" + exportObjects);
 		// 需要导出的对象数组
@@ -154,7 +158,7 @@ public class DomainadmMigration {
 		// 导出maxdomain表
 		MaxDomain maxDomain = exportMaxDomainToJavaBean(domainid);
 		String domaintype = maxDomain.getDomaintype();
-		//如果为字母数字域  导出  ALNDomain 表
+		// 如果为字母数字域 导出 ALNDomain 表
 		if ("字母数字".equals(domaintype)) {
 			_log.info("--域为字母数字域---导出表 ALNDomain-----");
 			maxDomain.setAlnDomains(exportALNDomainToJavaBean(domainid));
@@ -163,7 +167,8 @@ public class DomainadmMigration {
 	}
 
 	/**
-	 * 导出 字母数字域 对应的 ALNDomain 表的数据 
+	 * 导出 字母数字域 对应的 ALNDomain 表的数据
+	 * 
 	 * @param domainid
 	 * @return
 	 * @throws SQLException

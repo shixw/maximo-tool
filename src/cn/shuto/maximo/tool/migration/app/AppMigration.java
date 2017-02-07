@@ -54,15 +54,18 @@ public class AppMigration {
 				.getMaximoConnection(SystemEnvironmental.getInstance().getStringParam("-maximopath"));
 		if (conn != null) {
 			try {
-				maxmodulesST = conn.prepareStatement(SELECTMAXMODULES);
-				maxmodulesmenusST = conn.prepareStatement(SELECTMAXMODULESMENUS);
-				maxappsST = conn.prepareStatement(SELECTMAXAPPS);
-				maxappsmenusST = conn.prepareStatement(SELECTMAXAPPSMENUS);
-				sigoptionST = conn.prepareStatement(SELECTSIGOPTION);
-				maxlabelsST = conn.prepareStatement(SELECTMAXLABELS);
-				maxpresentationST = conn.prepareStatement(SELECTMAXPRESENTATION);
+				if (SystemEnvironmental.getInstance().getStringParam("-option").startsWith("export")) {
+					maxmodulesST = conn.prepareStatement(SELECTMAXMODULES);
+					maxmodulesmenusST = conn.prepareStatement(SELECTMAXMODULESMENUS);
+					maxappsST = conn.prepareStatement(SELECTMAXAPPS);
+					maxappsmenusST = conn.prepareStatement(SELECTMAXAPPSMENUS);
+					sigoptionST = conn.prepareStatement(SELECTSIGOPTION);
+					maxlabelsST = conn.prepareStatement(SELECTMAXLABELS);
+					maxpresentationST = conn.prepareStatement(SELECTMAXPRESENTATION);
+				} else {
+					importST = conn.createStatement();
+				}
 
-				importST = conn.createStatement();
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -141,8 +144,8 @@ public class AppMigration {
 						importST.addBatch(sigoption.toInsertSql());
 					}
 				}
-				String GRANTAPPAUTHFORMAT = String.format(GRANTAPPAUTH, app.getApp(),app.getApp());
-				_log.info("----为Maxadmin授权应用权限------:"+GRANTAPPAUTHFORMAT);
+				String GRANTAPPAUTHFORMAT = String.format(GRANTAPPAUTH, app.getApp(), app.getApp());
+				_log.info("----为Maxadmin授权应用权限------:" + GRANTAPPAUTHFORMAT);
 				importST.addBatch(GRANTAPPAUTHFORMAT);
 				// 执行 提交
 				importST.executeBatch();

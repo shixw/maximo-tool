@@ -37,9 +37,7 @@ public class SystemXMLMigration {
 				.getMaximoConnection(SystemEnvironmental.getInstance().getStringParam("-maximopath"));
 		if (conn != null) {
 			try {
-				if (SystemEnvironmental.getInstance().getStringParam("-option").startsWith("export")) {
-					lookupsST = conn.prepareStatement(SELECTLOOKUPS);
-				}
+				lookupsST = conn.prepareStatement(SELECTLOOKUPS);
 
 			} catch (SQLException e) {
 				e.printStackTrace();

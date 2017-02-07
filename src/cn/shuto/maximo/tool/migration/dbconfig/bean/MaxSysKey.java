@@ -2,7 +2,9 @@ package cn.shuto.maximo.tool.migration.dbconfig.bean;
 
 import java.io.Serializable;
 
-public class MaxSysKey implements Serializable {
+import cn.shuto.maximo.tool.migration.BeanInterface;
+
+public class MaxSysKey implements Serializable, BeanInterface  {
 
 	private static final long serialVersionUID = 1L;
 
@@ -74,6 +76,62 @@ public class MaxSysKey implements Serializable {
 	public String toInsertSql() {
 		return String.format(INSERTMAXSYSKEYES, this.ixname, this.colname, this.colseq, this.ordering, this.changed,
 				this.maxsyskeysid);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((colname == null) ? 0 : colname.hashCode());
+		result = prime * result + colseq;
+		result = prime * result + ((ixname == null) ? 0 : ixname.hashCode());
+		result = prime * result + ((ordering == null) ? 0 : ordering.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		MaxSysKey other = (MaxSysKey) obj;
+		if (colname == null) {
+			if (other.colname != null)
+				return false;
+		} else if (!colname.equals(other.colname))
+			return false;
+		if (colseq != other.colseq)
+			return false;
+		if (ixname == null) {
+			if (other.ixname != null)
+				return false;
+		} else if (!ixname.equals(other.ixname))
+			return false;
+		if (ordering == null) {
+			if (other.ordering != null)
+				return false;
+		} else if (!ordering.equals(other.ordering))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toUpdateSql() {
+		return null;
+	}
+
+	@Override
+	public String getImportUniqueRecordSql() {
+		return "select IXNAME, COLNAME, COLSEQ, ORDERING, CHANGED, MAXSYSKEYSID from maxsyskeys  where IXNAME = '"+this.ixname+"' and COLNAME = '"+this.colname+"'";
 	}
 
 }

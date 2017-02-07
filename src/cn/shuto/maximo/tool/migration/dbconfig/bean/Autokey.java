@@ -2,7 +2,9 @@ package cn.shuto.maximo.tool.migration.dbconfig.bean;
 
 import java.io.Serializable;
 
-public class Autokey implements Serializable {
+import cn.shuto.maximo.tool.migration.BeanInterface;
+
+public class Autokey implements Serializable, BeanInterface {
 
 	private static final long serialVersionUID = 1L;
 
@@ -96,6 +98,17 @@ public class Autokey implements Serializable {
 	public String toInsertSql() {
 		return String.format(INSERTAUTOKEY, this.prefix, this.seed, this.orgid, this.siteid, this.autokeyname,
 				this.setid, this.langcode, this.autokeyid);
+	}
+
+	@Override
+	public String toUpdateSql() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getImportUniqueRecordSql() {
+		return "select PREFIX, SEED, ORGID, SITEID, AUTOKEYNAME, SETID, LANGCODE, AUTOKEYID from autokey where AUTOKEYNAME = '"+this.autokeyname+"'";
 	}
 
 }

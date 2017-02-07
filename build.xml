@@ -20,6 +20,8 @@
 	<target name="maximoexport" id="maximoexport" depends="exportdbconfig,exportdomaindm,exportapp,exportlookups,exportmaxmessages,buildsourcecode" />
 	<!-- Maximo系统导入的统一任务配置 -->
 	<target name="maximoimport" id="maximoimport" depends="copymaximoclass,importdbconfig,configdb,importmaxmessages,importdomainadm,importapp,importlookups,initdata" />
+	<!-- Maximo系统更新的统一任务配置 -->
+	<target name="maximoupdate" id="maximoimport" depends="copymaximoclass,updatedbconfig,configdb,importmaxmessages,importdomainadm,importapp,importlookups,initdata" />
 	<!-- 执行初始化数据 -->
 	<target name="initdata">
 		<sql print="true" encoding="UTF-8" src="${package.path}/package/initdata/initdata.sql" userid="${mxe.db.user}" url="${mxe.db.url}" password="${mxe.db.password}" driver="${mxe.db.driver}">
@@ -80,6 +82,18 @@
 			<classpath refid="ant.run.lib.path">
 			</classpath>
 			<arg value="-option=importdbconfig" />
+			<arg value="-targetVersion=${maximo.version}" />
+			<arg value="-maximopath=${maximo.path}" />
+			<arg value="-importpath=${package.path}" />
+		</java>
+	</target>
+	<!-- 从导出的文件中 更新数据库配置 -->
+	<target name="updatedbconfig" id="updatedbconfig">
+		<java classname="cn.shuto.maximo.tool.App" fork="true" failonerror="true">
+			<sysproperty key="file.encoding" value="UTF-8" />
+			<classpath refid="ant.run.lib.path">
+			</classpath>
+			<arg value="-option=updatedbconfig" />
 			<arg value="-targetVersion=${maximo.version}" />
 			<arg value="-maximopath=${maximo.path}" />
 			<arg value="-importpath=${package.path}" />

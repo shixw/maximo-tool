@@ -44,6 +44,10 @@ public class App {
 				DBConfigMigration dbcm = new DBConfigMigration();
 				dbcm.exportDBConfig(systemEnvironmental.getStringParam("-exportobjects"));
 			}
+			if ("updatedbconfig".equals(option)) {
+				DBConfigMigration dbcm = new DBConfigMigration();
+				dbcm.updateDBConfig();
+			}
 			if ("importdbconfig".equals(option)) {
 				DBConfigMigration dbcm = new DBConfigMigration();
 				dbcm.importDBConfig();
